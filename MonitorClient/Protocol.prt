@@ -1,0 +1,26 @@
+include <Rso/Net/Protocol>
+
+namespace rso
+{
+	namespace monitor
+	{
+		using namespace std
+		using namespace net
+
+		struct SCommand
+		{
+			wstring Name
+			wstring Command
+		}
+		struct SOption
+		{
+			wstring ID
+			wstring PW
+			int32 ServerNo
+			vector<SNamePort> Servers
+			wstring LocalDirectory
+			wstring RemoteDirectory
+			vector<SCommand> Commands
+		}
+	}
+}

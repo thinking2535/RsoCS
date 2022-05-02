@@ -1,0 +1,29 @@
+<Proto Type 동적으로 처리>
+// SData 클래스가 정의되어 있고, 그 이름을 알때 명시적으로 SData 의 객체를 생성하지 않고 값을 Set,Get 하는 방법.
+            string str = "SData";
+            var ctype = Type.GetType(str);
+            var ob = Activator.CreateInstance(ctype);
+            Console.WriteLine(ob.GetType().ToString());
+            var m = ctype.GetFields();
+            for (int i = 0; i < m.Length; ++i)
+            {
+                m[i].SetValue(ob, 3);
+
+                break;
+            }
+
+            IProto I = ob as IProto;
+            var s = new CStream();
+            s.Push(I);
+            s.SaveFile("ok.bin");
+
+            var s2 = new CStream("ok.bin");
+
+            SData d2 = new SData();
+            s2.Pop(d2);
+            Console.WriteLine("ok");
+
+
+
+
+익셉션 처리할 때, new Exception 에서 익셉션나면 어떻게 해야하나??????????????

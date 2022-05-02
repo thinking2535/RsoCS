@@ -1,0 +1,293 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using rso;
+using rso.physics;
+using Galaxy;
+
+namespace GalaxyClient
+{
+    public class CMove
+    {
+        const double c_HalfPI = (Math.PI / 2.0);
+
+        static double _Speed(double Size_)
+        {
+            return (1000.0 / Size_);
+        }
+        static double _Radius(double Size_)
+        {
+            return (Size_ * 1.8);
+        }
+        static double _dTheta(double Size_)
+        {
+            return (_Speed(Size_) / _Radius(Size_));
+        }
+
+        public abstract class CObject
+        {
+            public abstract EMoveMode Mode();
+            public abstract SPosTheta GetPosTheta(double Time_);
+            public abstract SMoveInfo GetMoveInfo();
+            public abstract SMoveInfo SetSize(double Size_, double Time_);
+            public abstract SMoveInfo Collided(double Time_);
+            public abstract SMoveInfo UnCollided(double Size_, double Time_);
+        };
+        public class CMoveObject : CObject
+        {
+            SMoveObject _Object = new SMoveObject();
+
+            public void Init(SPoint Pos_, double Theta_, double Speed_, double Time_)
+            {
+                _Object.Init(Pos_, Theta_, Speed_, Time_);
+            }
+            public override EMoveMode Mode()
+            {
+                return EMoveMode.Move;
+            }
+            public override SPosTheta GetPosTheta(double Time_)
+            {
+                return _Object.GetPosTheta(Time_);
+            }
+            public override SMoveInfo GetMoveInfo()
+            {
+                return new SMoveInfo(
+                    EMoveMode.Move,
+                    _Object.Pos,
+                    _Object.Theta,
+                    _Object.Speed,
+                    0.0);
+            }
+            public override SMoveInfo SetSize(double Size_, double Time_)
+            {
+                _Object.SetSpeed(_Speed(Size_), Time_);
+                return GetMoveInfo();
+            }
+            public override SMoveInfo Collided(double Time_)
+            {
+                _Object.SetSpeed(0.0, Time_);
+                return GetMoveInfo();
+            }
+            public override SMoveInfo UnCollided(double Size_, double Time_)
+            {
+                _Object.SetSpeed(_Speed(Size_), Time_);
+                return GetMoveInfo();
+            }
+        }
+        public class CSpinObject : CObject
+        {
+            SSpinObject _Object = new SSpinObject();
+            double _LastTheta = 0.0;    // 3시방향을 기준으로 Center-Pos 간의 각이 아닌 기준방향과 Pos의 진행방향 의 각	// dTheta 가 0.0 일때 최근 회전방향을 알기 위함
+
+            public void Init(SPoint Center_, double Radius_, double dTheta_, double BaseTheta_, double BaseTime_)
+            {
+                _Object = new SSpinObject(Center_, Radius_, dTheta_, BaseTheta_, BaseTime_);
+            }
+            public override EMoveMode Mode()
+            {
+                return EMoveMode.Spin;
+            }
+            public override SPosTheta GetPosTheta(double Time_)
+            {
+                var PosTheta = _Object.GetPosTheta(Time_);
+                if (_Object.dTheta > 0.0) // 반시계방향
+                    PosTheta.Theta += c_HalfPI;
+                else if (_Object.dTheta < 0.0) // 시계방향
+                    PosTheta.Theta -= c_HalfPI;
+                else
+                    PosTheta.Theta = _LastTheta;
+
+                _LastTheta = PosTheta.Theta;
+
+                return PosTheta;
+            }
+            public override SMoveInfo GetMoveInfo()
+            {
+                return new SMoveInfo(
+                    EMoveMode.Spin,
+                    _Object.Center,
+                    _Object.BaseTheta,
+                    _Object.Radius,
+                    _Object.dTheta);
+            }
+            public override SMoveInfo SetSize(double Size_, double Time_)
+            {
+                var PosTheta = _Object.GetPosTheta(Time_);
+                _Object.SetdTheta(_dTheta(Size_), Time_);
+
+                var dVector = CBase.Vector(PosTheta.Theta, _Object.Radius - _Radius(Size_));
+                _Object.Center.AddTo(dVector);
+                _Object.Radius = _Radius(Size_);
+
+                return GetMoveInfo();
+            }
+            public override SMoveInfo Collided(double Time_)
+            {
+                var PosTheta = _Object.GetPosTheta(Time_);
+                _Object.Center = PosTheta.Pos;
+                _Object.Radius = 0.0;
+                _Object.BaseTheta = PosTheta.Theta;
+                _Object.BaseTime = Time_;
+
+                return GetMoveInfo();
+            }
+            public override SMoveInfo UnCollided(double Size_, double Time_)
+            {
+                var PosTheta = _Object.GetPosTheta(Time_);
+                _Object.Radius = _Radius(Size_);
+                _Object.Center = PosTheta.Pos.Sub(CBase.Vector(PosTheta.Theta, _Object.Radius));
+                _Object.BaseTheta = PosTheta.Theta;
+                _Object.BaseTime = Time_;
+
+                return GetMoveInfo();
+            }
+            public SMoveInfo TurnRight(double Time_)
+            {
+                var PosTheta = _Object.GetPosTheta(Time_);
+
+                if (_Object.dTheta > 0.0)
+                {
+                    _Object.Center = PosTheta.Pos.Add(PosTheta.Pos.Sub(_Object.Center));
+                    _Object.BaseTheta -= Math.PI;
+                    _Object.SetdTheta(-_Object.dTheta, Time_);
+                }
+
+                return GetMoveInfo();
+            }
+            public SMoveInfo TurnLeft(double Time_)
+            {
+                var PosTheta = _Object.GetPosTheta(Time_);
+
+                if (_Object.dTheta < 0.0)
+                {
+                    _Object.Center = PosTheta.Pos.Add(PosTheta.Pos.Sub(_Object.Center));
+                    _Object.BaseTheta += Math.PI;
+                    _Object.SetdTheta(-_Object.dTheta, Time_);
+                }
+
+                return GetMoveInfo();
+            }
+        }
+
+        double _Size = 1.0;
+        CMoveObject _MoveObject = new CMoveObject();
+        CSpinObject _SpinObject = new CSpinObject();
+        CObject _Object = null;
+        bool _Collided = false;
+
+        public void Init(SPoint Pos_, double Size_, double Theta_, double Time_)
+        {
+            if (Size_ <= 0)
+                throw new Exception("Invalid Size");
+
+            _Size = Size_;
+
+            _MoveObject.Init(Pos_, Theta_, _Speed(Size_), Time_);
+            _Object = _MoveObject;
+        }
+        public SPosTheta GetPosTheta(double Time_)
+        {
+            return _Object.GetPosTheta(Time_);
+        }
+        public SMoveInfo GoForward(double Time_)
+        {
+            var PosTheta = _Object.GetPosTheta(Time_);
+            if (_Object.Mode() == EMoveMode.Spin)
+            {
+                _MoveObject.Init(
+                    PosTheta.Pos,
+                    PosTheta.Theta,
+                    (_Collided ? 0.0 : _Speed(_Size)),
+                    Time_);
+                _Object = _MoveObject;
+            }
+            return _MoveObject.GetMoveInfo();
+        }
+        public SMoveInfo TurnRight(double Time_)
+        {
+            if (_Object.Mode() == EMoveMode.Move)
+            {
+                var PosTheta = _MoveObject.GetPosTheta(Time_);
+
+                _SpinObject.Init(
+                    (_Collided ? PosTheta.Pos : PosTheta.Pos.Add(new SPoint(Math.Cos(PosTheta.Theta - c_HalfPI) * _Radius(_Size), Math.Sin(PosTheta.Theta - c_HalfPI) * _Radius(_Size)))),
+                    (_Collided ? 0.0 : _Radius(_Size)),
+                    - _dTheta(_Size),
+                    PosTheta.Theta + c_HalfPI,
+                    Time_);
+                _Object = _SpinObject;
+                return _SpinObject.GetMoveInfo();
+            }
+            else if (_Object.Mode() == EMoveMode.Spin)
+            {
+                return _SpinObject.TurnRight(Time_);
+            }
+            else
+            {
+                return new SMoveInfo();
+            }
+        }
+        public SMoveInfo TurnLeft(double Time_)
+        {
+            if (_Object.Mode() == EMoveMode.Move)
+            {
+                var PosTheta = _MoveObject.GetPosTheta(Time_);
+
+                _SpinObject.Init(
+                    (_Collided ? PosTheta.Pos : PosTheta.Pos.Add(new SPoint(Math.Cos(PosTheta.Theta + c_HalfPI) * _Radius(_Size), Math.Sin(PosTheta.Theta + c_HalfPI) * _Radius(_Size)))),
+                    (_Collided ? 0.0 : _Radius(_Size)),
+                    _dTheta(_Size),
+                    PosTheta.Theta - c_HalfPI,
+                    Time_);
+                _Object = _SpinObject;
+                return _SpinObject.GetMoveInfo();
+            }
+            else if (_Object.Mode() == EMoveMode.Spin)
+            {
+                return _SpinObject.TurnLeft(Time_);
+            }
+            else
+            {
+                return new SMoveInfo();
+            }
+        }
+        public SMoveInfo SetSize(double Size_, double Time_)
+        {
+            return _Object.SetSize(Size_, Time_);
+        }
+        public SMoveInfo Collided(double Time_)
+        {
+            _Collided = true;
+            return _Object.Collided(Time_);
+        }
+        public SMoveInfo UnCollided(double Time_)
+        {
+            _Collided = false;
+            return _Object.UnCollided(_Size, Time_);
+        }
+        public void SetMoveInfo(SMoveInfo Info_, Double Time_)
+        {
+            if(Info_.MoveMode == EMoveMode.Move)
+            {
+                _MoveObject.Init(
+                    Info_.PosCenter,
+                    Info_.Theta,
+                    Info_.SpeedRadius,
+                    Time_);
+                _Object = _MoveObject;
+            }
+            else if(Info_.MoveMode == EMoveMode.Spin)
+            {
+                _SpinObject.Init(
+                    Info_.PosCenter,
+                    Info_.SpeedRadius,
+                    Info_.dTheta,
+                    Info_.Theta,
+                    Time_);
+                _Object = _SpinObject;
+            }
+        }
+    };
+}

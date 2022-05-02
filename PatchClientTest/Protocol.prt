@@ -1,0 +1,13 @@
+include <Rso/Net/Protocol>
+
+using namespace rso
+using namespace net
+
+struct SOption
+{
+	string ServerName
+	string DataPath
+	string DataFileName
+	SNamePort MasterNamePort
+	string BalanceDataPath
+}

@@ -1,0 +1,163 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C988C2F6-84AA-47A1-9DAA-D30745E2781D}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MonitorClient</RootNamespace>
+    <AssemblyName>MonitorClient</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>.\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>.\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CommandAdd.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CommandAdd.Designer.cs">
+      <DependentUpon>CommandAdd.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorClient.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MonitorClient.Designer.cs">
+      <DependentUpon>MonitorClient.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ProcMessage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ProcMessage.Designer.cs">
+      <DependentUpon>ProcMessage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ProcStop.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ProcStop.Designer.cs">
+      <DependentUpon>ProcStop.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Protocol.cs" />
+    <Compile Include="UserProtocol.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserProtocol.Designer.cs">
+      <DependentUpon>UserProtocol.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="CommandAdd.resx">
+      <DependentUpon>CommandAdd.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MonitorClient.resx">
+      <DependentUpon>MonitorClient.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ProcMessage.resx">
+      <DependentUpon>ProcMessage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ProcStop.resx">
+      <DependentUpon>ProcStop.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="UserProtocol.resx">
+      <DependentUpon>UserProtocol.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="Option.ini" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <None Include="Protocol.prt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Base\Base.csproj">
+      <Project>{3959339f-4d57-4c37-a342-905a2df27000}</Project>
+      <Name>Base</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{71034760-0970-41f9-9211-806a4dbaa705}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GameUtil\GameUtil.csproj">
+      <Project>{ac70fbb2-f50f-48e7-a7cd-65c6444681e5}</Project>
+      <Name>GameUtil</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Monitor\Monitor.csproj">
+      <Project>{819b1e2d-8edf-4cfe-b5e7-e0b9d8227738}</Project>
+      <Name>Monitor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Net\Net.csproj">
+      <Project>{557468bd-7e0f-4e68-b283-15779bde585b}</Project>
+      <Name>Net</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Util\Util.csproj">
+      <Project>{21968cec-bd93-484b-8687-635511f17399}</Project>
+      <Name>Util</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Doc\Todo.txt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>..\..\Bin\Rso\ProtoGen\x64\ProtoGen_sMTd.exe Protocol CS ..\..\Include\x64</PreBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
