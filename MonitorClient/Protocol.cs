@@ -72,12 +72,64 @@ namespace rso
 					SEnumChecker.GetMemberName(Command, "Command");
 			}
 		}
+		public class SServer : SNamePort
+		{
+			public String ServerName = string.Empty;
+			public SServer()
+			{
+			}
+			public SServer(SServer Obj_) : base(Obj_)
+			{
+				ServerName = Obj_.ServerName;
+			}
+			public SServer(SNamePort Super_, String ServerName_) : base(Super_)
+			{
+				ServerName = ServerName_;
+			}
+			public override void Push(CStream Stream_)
+			{
+				base.Push(Stream_);
+				Stream_.Pop(ref ServerName);
+			}
+			public override void Push(JsonDataObject Value_)
+			{
+				base.Push(Value_);
+				Value_.Pop("ServerName", ref ServerName);
+			}
+			public override void Pop(CStream Stream_)
+			{
+				base.Pop(Stream_);
+				Stream_.Push(ServerName);
+			}
+			public override void Pop(JsonDataObject Value_)
+			{
+				base.Pop(Value_);
+				Value_.Push("ServerName", ServerName);
+			}
+			public void Set(SServer Obj_)
+			{
+				base.Set(Obj_);
+				ServerName = Obj_.ServerName;
+			}
+			public override string StdName()
+			{
+				return 
+					base.StdName() + "," + 
+					SEnumChecker.GetStdName(ServerName);
+			}
+			public override string MemberName()
+			{
+				return 
+					base.MemberName() + "," + 
+					SEnumChecker.GetMemberName(ServerName, "ServerName");
+			}
+		}
 		public class SOption : SProto
 		{
 			public String ID = string.Empty;
 			public String PW = string.Empty;
 			public Int32 ServerNo = default(Int32);
-			public List<SNamePort> Servers = new List<SNamePort>();
+			public List<SServer> Servers = new List<SServer>();
 			public String LocalDirectory = string.Empty;
 			public String RemoteDirectory = string.Empty;
 			public List<SCommand> Commands = new List<SCommand>();
@@ -94,7 +146,7 @@ namespace rso
 				RemoteDirectory = Obj_.RemoteDirectory;
 				Commands = Obj_.Commands;
 			}
-			public SOption(String ID_, String PW_, Int32 ServerNo_, List<SNamePort> Servers_, String LocalDirectory_, String RemoteDirectory_, List<SCommand> Commands_)
+			public SOption(String ID_, String PW_, Int32 ServerNo_, List<SServer> Servers_, String LocalDirectory_, String RemoteDirectory_, List<SCommand> Commands_)
 			{
 				ID = ID_;
 				PW = PW_;

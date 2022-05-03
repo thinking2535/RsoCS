@@ -12,12 +12,16 @@ namespace rso
 			wstring Name
 			wstring Command
 		}
+		struct SServer : SNamePort
+		{
+			wstring ServerName
+		}
 		struct SOption
 		{
 			wstring ID
 			wstring PW
 			int32 ServerNo
-			vector<SNamePort> Servers
+			vector<SServer> Servers
 			wstring LocalDirectory
 			wstring RemoteDirectory
 			vector<SCommand> Commands

@@ -179,7 +179,7 @@ namespace MonitorClient
                 var Server = _Option.Data.Servers[_Option.Data.ServerNo];
 
                 foreach (var i in _Option.Data.Servers)
-                    cbServer.Items.Add(i.Name + " : " + i.Port.ToString());
+                    cbServer.Items.Add(i.ServerName);
 
                 cbServer.SelectedIndex = _Option.Data.ServerNo;
 
@@ -385,7 +385,7 @@ namespace MonitorClient
                 for (Int32 i = 0; i < _OpenFileDialog.FileNames.Count(); ++i)
                 {
                     var fileinfo = new SFileInfo();
-                    fileinfo.PathName = tbRemoteFileTransferDirectory.Text + _OpenFileDialog.SafeFileNames[i];
+                    fileinfo.PathName = Path.Combine(tbRemoteFileTransferDirectory.Text, _OpenFileDialog.SafeFileNames[i]);
                     fileinfo.Stream.LoadFile(_OpenFileDialog.FileNames[i]);
                     Proto.Files.Add(fileinfo);
                 }
@@ -417,7 +417,7 @@ namespace MonitorClient
                     var SafeName = file.Substring(_FolderBrowserDialog.SelectedPath.Length + 1);
                     var fileinfo = new SFileInfo();
 
-                    fileinfo.PathName = Path.Combine(tbRemoteFileTransferDirectory.Text, SafeName);
+                    fileinfo.PathName = Path.Combine(Path.Combine(tbRemoteFileTransferDirectory.Text, new DirectoryInfo(_FolderBrowserDialog.SelectedPath).Name), SafeName);
                     fileinfo.Stream.LoadFile(file);
                     Proto.Files.Add(fileinfo);
                 }
@@ -545,6 +545,7 @@ namespace MonitorClient
         private void CbServer_SelectedIndexChanged(object sender, EventArgs e)
         {
             _Option.Data.ServerNo = cbServer.SelectedIndex;
+            _Option.Save();
         }
 
         private void tbRemoteFileTransferDirectory_TextChanged(object sender, EventArgs e)
