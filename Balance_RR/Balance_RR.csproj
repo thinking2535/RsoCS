@@ -106,8 +106,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>..\..\..\..\Bin\Rso\ProtoGen\x64\ProtoGen_sMTd.exe ..\..\..\..\Rso\Balance_RR\Source\Protocol CS ..\..\..\..\Include\x64\
-move ..\..\..\..\Rso\Balance_RR\Source\Protocol.cs ..\..\Protocol.cs
+    <PreBuildEvent>copy ..\..\..\..\Rso\Balance_RR\Source\Protocol.cs ..\..\Protocol.cs
 </PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

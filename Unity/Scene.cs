@@ -6,42 +6,43 @@ namespace rso.unity
     {
         string _PrefabName;
         Vector3 _Pos;
-        bool _Active;
-        protected bool _Exit = false;
         protected GameObject _Object = null;
-        public CScene(string PrefabName_, Vector3 Pos_, bool Active_)
+        public CScene(string PrefabName_, Vector3 Pos_)
         {
             _PrefabName = PrefabName_;
             _Pos = Pos_;
-            _Active = Active_;
         }
-        public void Create()
+        internal void _Enter()
         {
             if (_Object != null)
                 return;
 
             _Object = (GameObject)UnityEngine.Object.Instantiate(Resources.Load(_PrefabName), _Pos, Quaternion.identity);
             _Object.name = _PrefabName;
-
-            if (!_Active)
-                _Object.SetActive(false);
+            Enter();
         }
-        public void Clear()
+        internal void _Update()
         {
-            if (_Object != null)
-            {
-                GameObject.Destroy(_Object);
-                _Object = null;
-            }
-
-            Dispose();
+            Update();
         }
-        public void Exit()
+        internal void _Exit()
         {
-            _Exit = true;
+            if (_Object == null)
+                return;
+
+            Exit();
+
+            GameObject.Destroy(_Object);
+            _Object = null;
         }
-        public abstract void Dispose();
-        public abstract void Enter();
-        public abstract bool Update(); // false 를 반환하면 내부의 소멸 처리가 끝났다고 간주함 (Enter가 호출되었다면 소멸처리 하고 return false 할것)
+        protected virtual void Enter()
+        {
+        }
+        protected virtual void Update()
+        {
+        }
+        protected virtual void Exit()
+        {
+        }
     }
 }

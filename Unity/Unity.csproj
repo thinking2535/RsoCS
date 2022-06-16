@@ -89,8 +89,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audio.cs" />
-    <Compile Include="Base.cs" />
+    <Compile Include="Unity.cs" />
     <Compile Include="Blink.cs" />
+    <Compile Include="Extension.cs" />
     <Compile Include="FPS.cs" />
     <Compile Include="InputTouch.cs" />
     <Compile Include="JoyStick.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="Linear.cs" />
     <Compile Include="AudioMusic.cs" />
     <Compile Include="LogControl.cs" />
+    <Compile Include="ObjectPool.cs" />
     <Compile Include="PadSimulator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol.cs" />
@@ -113,6 +115,10 @@
     <None Include="Protocol.prt" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Base\Base.csproj">
+      <Project>{3959339f-4d57-4c37-a342-905a2df27000}</Project>
+      <Name>Base</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{71034760-0970-41f9-9211-806a4dbaa705}</Project>
       <Name>Core</Name>
@@ -129,11 +135,15 @@
       <Project>{557468bd-7e0f-4e68-b283-15779bde585b}</Project>
       <Name>Net</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Physics\Physics.csproj">
+      <Project>{7d732823-3cc7-4dd8-87c3-d8c17a59b771}</Project>
+      <Name>Physics</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>..\..\..\..\Bin\Rso\ProtoGen\x64\ProtoGen_sMTd.exe ..\..\Protocol CS ..\..\..\..\Include\x64</PreBuildEvent>
+    <PreBuildEvent>copy ..\..\..\..\Rso\Unity\Source\Protocol.cs ..\..\Protocol.cs</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

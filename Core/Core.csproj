@@ -82,7 +82,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Base.cs" />
+    <Compile Include="Core.cs" />
     <Compile Include="EnumChecker.cs" />
     <Compile Include="Extension.cs" />
     <Compile Include="SortedMultiMap.cs" />

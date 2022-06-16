@@ -37,7 +37,7 @@ namespace PhysicsTest
             // 나의 속도벡터를 나와 대상을 연결한 직선과 나란한 성분A와 A와 수직이 B를 구하고
             // A, B의 X,Y 성분을 구하고, B-A 를 구하면 이것이 BalloonFight 의 충돌후의 내 Vector
 
-            var LinkTheta = CBase.ThetaOfTwoVectors(LinkVector, Vel0);
+            var LinkTheta = CPhysics.ThetaOfTwoVectors(LinkVector, Vel0);
             var ScalarA = Mathf.Abs(Mathf.Cos(LinkTheta) * Scalar);
             var ThetaA = Mathf.Atan2(LinkVector.Y, LinkVector.X);
             var VecA = new SPoint(Mathf.Cos(ThetaA) * ScalarA, Mathf.Sin(ThetaA) * ScalarA);
@@ -69,7 +69,7 @@ namespace PhysicsTest
 
             SPoint p = new SPoint(0.00000001f, 0.0f);
             SLine l = new SLine(new SPoint(0.0f, 1.0f), new SPoint(2.0f, 1.0f));
-            var o = CBase.SymmetryPoint(p, l);
+            var o = CPhysics.SymmetryPoint(p, l);
             Console.WriteLine(o.X + " " + o.Y);
         }
     }

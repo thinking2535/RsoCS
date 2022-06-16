@@ -81,15 +81,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClientEngine.cs" />
+    <Compile Include="CollectionCollider2D.cs" />
+    <Compile Include="Collider2D.cs" />
+    <Compile Include="Engine.cs" />
     <Compile Include="Extension.cs" />
+    <Compile Include="MovingObject2D.cs" />
+    <Compile Include="Object2D.cs" />
     <Compile Include="ObjectStraight.cs" />
     <Compile Include="Physics.cs" />
+    <Compile Include="PlayerObject2D.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol.cs" />
-    <Compile Include="Base.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Doc\CMove.cs.txt" />
+    <Compile Include="RectCollider2D.cs" />
+    <Compile Include="ShuttleObject2D.cs" />
+    <Compile Include="Tick.cs" />
+    <Compile Include="TickScale.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Base\Base.csproj">
@@ -105,10 +112,12 @@
       <Name>Math</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Doc\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>..\..\..\..\Bin\Rso\ProtoGen\x64\ProtoGen_sMTd.exe ..\..\..\..\Rso\Physics\Source\Protocol CS ..\..\..\..\Include\x64\
-move ..\..\..\..\Rso\Physics\Source\Protocol.cs ..\..\Protocol.cs</PreBuildEvent>
+    <PreBuildEvent>copy ..\..\..\..\Rso\Physics\Source\Protocol.cs ..\..\Protocol.cs</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

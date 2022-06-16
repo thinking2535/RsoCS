@@ -82,7 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Average.cs" />
-    <Compile Include="Base.cs" />
+    <Compile Include="Math.cs" />
     <Compile Include="Tracer.cs" />
     <Compile Include="fresnel\alglibinternal.cs" />
     <Compile Include="fresnel\alglibmisc.cs" />

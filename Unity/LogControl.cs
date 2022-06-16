@@ -67,7 +67,7 @@ namespace rso.unity
             streamWriter.WriteLine("[StackTrace Diagnostics]\n" + stackTrace.ToString());
             streamWriter.Close();
 
-            CBase.ApplicationPause();
+            CUnity.ApplicationPause();
         }
         public CLogControl(Int32 MaxLogSize_, Int64[] Versions_, string Directory_, FLogCallback LogCallback_ = null)
         {

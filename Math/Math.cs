@@ -2,7 +2,7 @@
 
 namespace rso.math
 {
-    public static class CBase
+    public static class CMath
     {
         public const double c_PI = 3.14159265358979323846;
         public const double c_2_PI = (c_PI * 2.0);

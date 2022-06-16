@@ -4,53 +4,33 @@
     {
         public CScene CurScene { get; private set; } = null;
         CScene _NextScene;
+
+        ~CSceneControl()
+        {
+            Clear();
+        }
         public void SetNext(CScene Scene_)
         {
-            if (CurScene != null)
-            {
-                _NextScene = Scene_; // don't care _NextScene is valid or not
-                CurScene.Exit();
-            }
-            else
-            {
-                CurScene = Scene_;
-                CurScene.Create();
-                CurScene.Enter();
-            }
-        }
-        public void SetNextForce(CScene Scene_)
-        {
-            _NextScene = null;
-
-            if (CurScene != null)
-                CurScene.Clear();
-
-            CurScene = Scene_;
-            CurScene.Create();
-            CurScene.Enter();
+            _NextScene = Scene_; // don't care _NextScene is valid or not
         }
         public bool HaveNext()
         {
             return (_NextScene != null);
         }
-        public bool Update()
+        public void Update()
         {
-            if (CurScene == null)
-                return false;
+            if (_NextScene != null)
+            {
+                if (CurScene != null)
+                    CurScene._Exit();
 
-            if (CurScene.Update())
-                return true;
+                CurScene = _NextScene;
+                _NextScene = null;
+                CurScene._Enter();
+            }
 
-            CurScene.Clear();
-            CurScene = _NextScene;
-
-            if (_NextScene == null)
-                return false;
-
-            _NextScene = null;
-            CurScene.Create();
-            CurScene.Enter();
-            return true;
+            if (CurScene != null)
+                CurScene._Update();
         }
         public void Clear()
         {
@@ -58,7 +38,10 @@
                 _NextScene = null;
 
             if (CurScene != null)
-                CurScene.Exit();
+            {
+                CurScene._Exit();
+                CurScene = null;
+            }
         }
     }
 }

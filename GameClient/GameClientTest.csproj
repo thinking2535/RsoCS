@@ -124,9 +124,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>rem ..\..\..\..\Bin\Rso\ProtoGen\x64\ProtoGen_sMTd.exe ..\..\..\..\Server\Common\Source\NetProtocol CS ..\..\..\..\Include\x64\
-rem move ..\..\..\..\Server\Common\Source\NetProtocol.cs ..\..\NetProtocol.cs
-</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

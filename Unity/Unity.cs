@@ -1,4 +1,5 @@
 using rso.gameutil;
+using rso.physics;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,7 +9,7 @@ namespace rso.unity
     // 변위 = 0.5 * g * t*t + (현재v + 다음FixedUpdate시점의v) * 0.5 * t    ## (현재v + 다음FixedUpdate시점의v) * 0.5 = 현재v와 다음v의 중간
     // 변위 = 0.5 * t * (g *  t + 현재v + 다음FixedUpdate시점의v)
 
-    public static class CBase
+    public static class CUnity
     {
         public static EOS GetOS()
         {

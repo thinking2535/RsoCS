@@ -8,8 +8,8 @@ namespace rso.unity
 #if UNITY_EDITOR
         readonly CInputTouch.FPad _fTouched;
         readonly CInputTouch.FButton _fPushed;
-        readonly CInputKey _InputKey;
         readonly Vector2 _PadPosCenter;
+        readonly CInputKey _InputKey;
         void _Callback(KeyCode KeyCode_, bool Down_)
         {
             switch (KeyCode_)
@@ -79,8 +79,11 @@ namespace rso.unity
                     break;
             }
         }
-        public CPadSimulator(CInputTouch.FPad fTouched_, CInputTouch.FButton fPushed_, float StandbyRange_, float ActiveRange_, bool Tracking_)
+#endif
+        readonly CInputTouch _InputTouch = new CInputTouch();
+        public CPadSimulator(CInputTouch.FPad fTouched_, CInputTouch.FButton fPushed_, float StandbyRange_, float ActiveRange_)
         {
+#if UNITY_EDITOR
             _fTouched = fTouched_;
             _fPushed = fPushed_;
             _InputKey = new CInputKey(_Callback);
@@ -89,22 +92,16 @@ namespace rso.unity
             _InputKey.Add(KeyCode.Space);
             _InputKey.Add(KeyCode.Return);
             _PadPosCenter = new Vector2(Screen.width * 0.25f, Screen.height * 0.5f);
-        }
-        public void Update()
-        {
-            _InputKey.Update();
-        }
-#else
-        CInputTouch _InputTouch = new CInputTouch();
-        public CPadSimulator(CInputTouch.FPad fTouched_, CInputTouch.FButton fPushed_, float StandbyRange_, float ActiveRange_, bool Tracking_)
-        {
-            _InputTouch.Add(new CInputTouch.CObjectPad((Vector2 Pos_) => { return Pos_.x < Screen.width * 0.5f; }, fTouched_, StandbyRange_, ActiveRange_, Tracking_, 1));
+#endif
+            _InputTouch.Add(new CInputTouch.CObjectPad((Vector2 Pos_) => { return Pos_.x < Screen.width * 0.5f; }, fTouched_, StandbyRange_, ActiveRange_, 1));
             _InputTouch.Add(new CInputTouch.CObjectButton((Vector2 Pos_) => { return Pos_.x >= Screen.width * 0.5f; }, fPushed_));
         }
         public void Update()
         {
+#if UNITY_EDITOR
+            _InputKey.Update();
+#endif
             _InputTouch.Update();
         }
-#endif
     }
 }

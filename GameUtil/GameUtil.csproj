@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extension.cs" />
+    <Compile Include="FixedRandom.cs" />
     <Compile Include="KeyCntInt.cs" />
     <Compile Include="ControlFixed.cs" />
     <Compile Include="ControlImmovable.cs" />
@@ -92,9 +93,6 @@
     <Compile Include="Protocol.cs" />
     <Compile Include="PunishLimiter.cs" />
     <Compile Include="Rank.cs" />
-    <Compile Include="SimpleRandom.cs" />
-    <Compile Include="Tick.cs" />
-    <Compile Include="TickScale.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Base\Base.csproj">
@@ -112,8 +110,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>..\..\..\..\Bin\Rso\ProtoGen\x64\ProtoGen_sMTd.exe ..\..\..\..\Rso\GameUtil\Source\Protocol CS ..\..\..\..\Include\x64\
-move ..\..\..\..\Rso\GameUtil\Source\Protocol.cs ..\..\Protocol.cs
+    <PreBuildEvent>copy ..\..\..\..\Rso\GameUtil\Source\Protocol.cs ..\..\Protocol.cs
 </PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

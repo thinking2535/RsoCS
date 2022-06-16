@@ -1,3 +1,4 @@
+using rso.math;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -149,14 +150,13 @@ namespace rso.unity
             readonly FPad _fCallback;
             readonly float _StandbyRange;
             readonly float _ActiveRange;
-            readonly bool _Tracking;
             readonly Int32 _DirCount = 1;
             readonly float _UnitTheta;
             readonly float _UnitTheta_2;
 
             Vector2 _Pos;
             Int32 _LastDir = -1; // 9시 방향부터 0 ~ 반시계방향으로
-            public CObjectPad(FCheck fCheck_, FPad fCallback_, float StandbyRange_, float ActiveRange_, bool Tracking_, Int32 ExpDirCount_) :
+            public CObjectPad(FCheck fCheck_, FPad fCallback_, float StandbyRange_, float ActiveRange_, Int32 ExpDirCount_) :
                 base(fCheck_)
             {
                 if (StandbyRange_ < 0.0f)
@@ -171,7 +171,6 @@ namespace rso.unity
                 _fCallback = fCallback_;
                 _StandbyRange = StandbyRange_;
                 _ActiveRange = ActiveRange_;
-                _Tracking = Tracking_;
 
                 for (Int32 i = 0; i < ExpDirCount_; ++i)
                     _DirCount *= 2;
@@ -197,17 +196,17 @@ namespace rso.unity
 
                 var Theta = Mathf.PI - Mathf.Atan2(Vec.y, Vec.x);
                 Theta += _UnitTheta_2;
-                Theta %= math.CBase.c_2_PI_F;
+                Theta %= CMath.c_2_PI_F;
                 var Dir = (Int32)(Theta / _UnitTheta);
 
-                if (_Tracking && Magnitude > _ActiveRange)
+                if (Magnitude > _ActiveRange)
                 {
                     Vec.x = Vec.x / Magnitude * _ActiveRange;
                     Vec.y = Vec.y / Magnitude * _ActiveRange;
                     _Pos = Pos_ - Vec;
                 }
 
-                if (_Tracking || Dir != _LastDir)
+                if (Dir != _LastDir)
                     _fCallback(EState.Move, _Pos, Dir);
 
                 _LastDir = Dir;

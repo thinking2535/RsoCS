@@ -674,7 +674,7 @@ namespace rso
             }
             public UInt64 CheckSum()
             {
-                return CBase.GetCheckSum(_Bytes.Data, 0, _Bytes.Size);
+                return CCore.GetCheckSum(_Bytes.Data, 0, _Bytes.Size);
             }
             // 아래 함수들로 중첩 컨테이너는 처리 불가하지만 Excel Export 용으로 1단계의 컨테이너는 처리 가능하도록 남겨둠.
             public CStream Push<T>(T Data_)

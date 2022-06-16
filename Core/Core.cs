@@ -27,7 +27,7 @@ namespace rso
                 }
             }
         }
-        public static class CBase
+        public static class CCore
         {
             public static UInt64 GetCheckSum(Byte[] Data_, Int32 Index_, Int32 Length_)
             {
