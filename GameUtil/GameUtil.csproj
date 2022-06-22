@@ -82,7 +82,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extension.cs" />
-    <Compile Include="FixedRandom.cs" />
+    <Compile Include="FixedRandom32.cs" />
+    <Compile Include="FixedRandom64.cs" />
     <Compile Include="KeyCntInt.cs" />
     <Compile Include="ControlFixed.cs" />
     <Compile Include="ControlImmovable.cs" />

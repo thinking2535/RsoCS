@@ -203,12 +203,12 @@ namespace GameUtilTest
 
 #elif true
 
-            var r = new Rank<int, int>();
-            r.Add(1, 1);
-            r.Add(3, 3);
-            r.Add(5, 5);
+            var r = new CRank<int, int>();
+            r.Add(2, 0);
+            r.Add(4, 1);
+            r.Add(6, 2);
 
-            for (int i = -1; i < 7; ++i)
+            for (int i = -1; i < 8; ++i)
             {
                 var t = r.Get(i);
                 if (t == null)

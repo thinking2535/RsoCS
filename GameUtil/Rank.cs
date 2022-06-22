@@ -2,23 +2,24 @@ using System.Collections.Generic;
 
 namespace rso.gameutil
 {
-    public class Rank<TKey, TValue> : SortedDictionary<TKey, TValue>
+    public class CRank<TKey, TValue> : SortedDictionary<TKey, TValue>
     {
         public KeyValuePair<TKey, TValue>? Get(TKey Key_)
         {
             var keys = new List<TKey>(Keys);
             var index = keys.BinarySearch(Key_);
             if (index >= 0)
-            {
-                return new KeyValuePair<TKey, TValue>(keys[index], this[keys[index]]);
-            }
+                ++index; // C++ 과 통일 upper_bound 효과
             else
-            {
-                if (~index - 1 < 0)
-                    return null;
+                index = ~index;
 
-                return new KeyValuePair<TKey, TValue>(keys[~index - 1], this[keys[~index - 1]]);
-            }
+            if (index >= keys.Count && keys.Count > 0)
+                --index; // 가장 마지막 것으로 선택
+
+            if (index >= keys.Count)
+                return null;
+            else
+                return new KeyValuePair<TKey, TValue>(keys[index], this[keys[index]]);
         }
     }
 }
