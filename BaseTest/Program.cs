@@ -156,7 +156,7 @@ namespace BaseTest
             //    ((JsonObjectCollection)((JsonArrayCollection)SetupJson["Var"])[1])["b"].GetValue()
             //    );
         }
-#elif false
+#elif true
         public class CTest
         {
         }
@@ -164,32 +164,10 @@ namespace BaseTest
         {
 
             CList<CTest> l = new CList<CTest>();
-            l.Add(new CTest());
-            l.Add(new CTest());
-            l.Add(new CTest());
-            l.Remove(2);
-            l.Remove(1);
+            var it = l.Add(new CTest());
+            var it2 = it;
+            l.Remove(it2);
 
-            var i = l.Add(new CTest());
-            var v = i.Index;
-
-
-
-            l.AddAt(1, new CTest());
-            l.AddAt(2, new CTest());
-            l.AddAt(0, new CTest());
-            l.Remove(1);
-            var i0 = l.Get(0);
-
-
-            var i1 = l.Get(1);
-           
-            if (i1)
-                Console.WriteLine("i1");
-
-            var i2 = l.Get(2);
-            var i3 = l.Get(3);
-            Console.WriteLine("end");
         }
 
 #elif true

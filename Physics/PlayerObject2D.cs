@@ -4,18 +4,7 @@ using System.Linq;
 
 namespace rso.physics
 {
-    using TContactPoint2Ds = Dictionary<SContactPoint2D, SNormalOtherMovingObject>;
-    public struct SNormalOtherMovingObject
-    {
-        public SPoint Normal;
-        public CMovingObject2D OtherMovingObject;
-
-        public SNormalOtherMovingObject(SPoint Normal_, CMovingObject2D OtherMovingObject_)
-        {
-            Normal = Normal_; ;
-            OtherMovingObject = OtherMovingObject_;
-        }
-    }
+    using TContactPoint2Ds = Dictionary<SContactPoint2D, CMovingObject2D>;
     public struct SContactPoint2D
     {
         public CCollider2D Collider;
@@ -29,12 +18,11 @@ namespace rso.physics
     }
     public class CPlayerObject2D : CMovingObject2D
     {
-        public delegate void FCollisionEnter(Int64 Tick_, SPoint Normal_, CCollider2D Collider_, CCollider2D OtherCollider_, CMovingObject2D OtherMovingObject_);
-        public delegate void FCollisionStay(Int64 Tick_, TContactPoint2Ds ContactPoint2Ds_);
-        public delegate void FCollisionExit(Int64 Tick_, SPoint Normal_, CCollider2D Collider_, CCollider2D OtherCollider_, CMovingObject2D OtherMovingObject_);
+        public delegate void FCollision(Int64 Tick_, SPoint Normal_, CCollider2D Collider_, CCollider2D OtherCollider_, CMovingObject2D OtherMovingObject_);
+        public delegate void FCollisionExit(Int64 Tick_, CCollider2D Collider_, CCollider2D OtherCollider_, CMovingObject2D OtherMovingObject_);
 
-        public FCollisionEnter fCollisionEnter;
-        public FCollisionStay fCollisionStay;
+        public FCollision fCollisionEnter;
+        public FCollision fCollisionStay;
         public FCollisionExit fCollisionExit;
 
         // key를 SContactPoint2D으로 쓰는 이유는 여러개의 Collider를 가지는 객체의 OnCollisionStay 에서
@@ -53,36 +41,32 @@ namespace rso.physics
         public void Overlapped(Int64 Tick_, SPoint Normal_, CCollider2D Collider_, CCollider2D OtherCollider_, CMovingObject2D OtherMovingObject_)
         {
             var Key = new SContactPoint2D(Collider_, OtherCollider_);
-            if (!_ContactPoint2Ds.ContainsKey(Key))
+            if (_ContactPoint2Ds.ContainsKey(Key))
             {
-                _ContactPoint2Ds.Add(Key, new SNormalOtherMovingObject(Normal_, OtherMovingObject_));
+                fCollisionStay?.Invoke(Tick_, Normal_, Collider_, OtherCollider_, OtherMovingObject_);
+            }
+            else
+            {
+                _ContactPoint2Ds.Add(Key, OtherMovingObject_);
                 fCollisionEnter?.Invoke(Tick_, Normal_, Collider_, OtherCollider_, OtherMovingObject_);
             }
         }
-        public void CollisionEnterCheck(Int64 Tick_, CCollider2D OtherCollider_)
+        public void NotOverlapped(Int64 Tick_, CCollider2D Collider_, CCollider2D OtherCollider_)
+        {
+            var Key = new SContactPoint2D(Collider_, OtherCollider_);
+            if (_ContactPoint2Ds.ContainsKey(Key))
+            {
+                fCollisionExit?.Invoke(Tick_, Collider_, OtherCollider_, _ContactPoint2Ds[Key]);
+                _ContactPoint2Ds.Remove(Key);
+            }
+        }
+        public void OverlappedCheck(Int64 Tick_, CCollider2D OtherCollider_)
         {
             Collider.OverlappedCheck(Tick_, this, OtherCollider_, null);
         }
-        public void CollisionEnterCheck(Int64 Tick_, CMovingObject2D OtherMovingObject_)
+        public void OverlappedCheck(Int64 Tick_, CMovingObject2D OtherMovingObject_)
         {
             Collider.OverlappedCheck(Tick_, this, OtherMovingObject_.Collider, OtherMovingObject_);
-        }
-        // Stay 에 대한 콜백함수 호출회수를 FixedUpdate 호출회수와 같게 하기위해 CollisionEnter시에 _ContactPoint2Ds에 이미 존재하면 Stay 콜백을 호출하는 방식을 사용하지 않음
-        public void CollisionStayCheck(Int64 Tick_)
-        {
-            fCollisionStay?.Invoke(Tick_, _ContactPoint2Ds);
-        }
-        public void CollisionExitCheck(Int64 Tick_)
-        {
-            foreach (var k in _ContactPoint2Ds.Keys.ToList())
-            {
-                if (!k.Collider.IsOverlapped(Tick_, k.OtherCollider))
-                {
-                    var Value = _ContactPoint2Ds[k];
-                    _ContactPoint2Ds.Remove(k);
-                    fCollisionExit?.Invoke(Tick_, Value.Normal, k.Collider, k.OtherCollider, Value.OtherMovingObject);
-                }
-            }
         }
     }
 }

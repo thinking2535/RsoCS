@@ -34,8 +34,6 @@ namespace rso.physics
         {
             for (; Tick < ToTick_; Tick += UnitTick)
             {
-                fFixedUpdate?.Invoke(Tick);
-
                 foreach (var i in MovingObjects)
                     i.fFixedUpdate?.Invoke(Tick);
 
@@ -45,7 +43,7 @@ namespace rso.physics
                 for (Int32 pi = 0; pi < Players.Count - 1; ++pi)
                 {
                     for (Int32 ti = pi + 1; ti < Players.Count; ++ti)
-                        Players[pi].CollisionEnterCheck(Tick, Players[ti]);
+                        Players[pi].OverlappedCheck(Tick, Players[ti]);
                 }
 
                 foreach (var p in Players)
@@ -56,7 +54,7 @@ namespace rso.physics
                         it.MoveNext();
 
                         // 여기에서 itCheck을 삭제할 수 있음
-                        p.CollisionEnterCheck(Tick, itCheck.Data);
+                        p.OverlappedCheck(Tick, itCheck.Data);
                     }
 
                     for (var it = Objects.Begin(); it;)
@@ -65,12 +63,11 @@ namespace rso.physics
                         it.MoveNext();
 
                         // 여기에서 itCheck을 삭제할 수 있음
-                        p.CollisionEnterCheck(Tick, itCheck.Data);
+                        p.OverlappedCheck(Tick, itCheck.Data);
                     }
-
-                    p.CollisionStayCheck(Tick);
-                    p.CollisionExitCheck(Tick);
                 }
+
+                fFixedUpdate?.Invoke(Tick);
             }
         }
         public CList<CCollider2D>.SIterator AddObject(CCollider2D Object_)
@@ -79,6 +76,7 @@ namespace rso.physics
         }
         public void RemoveObject(CList<CCollider2D>.SIterator Iterator_)
         {
+            Iterator_.Data.LocalEnabled = false;
             Objects.Remove(Iterator_);
         }
         public CList<CMovingObject2D>.SIterator AddMovingObject(CMovingObject2D Object_)
@@ -87,6 +85,7 @@ namespace rso.physics
         }
         public void RemoveMovingObject(CList<CMovingObject2D>.SIterator Iterator_)
         {
+            Iterator_.Data.Collider.LocalEnabled = false;
             MovingObjects.Remove(Iterator_);
         }
         // RemovePlayer 는 추가하지 말것

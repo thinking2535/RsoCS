@@ -10,10 +10,6 @@ namespace rso.physics
         public bool LocalEnabled = true;
         public bool Enabled
         {
-            set
-            {
-                Enabled = value;
-            }
             get
             {
                 return LocalEnabled && (_ParentCollider == null || _ParentCollider.Enabled);

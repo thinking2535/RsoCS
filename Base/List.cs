@@ -208,7 +208,7 @@ namespace rso
             }
             public SIterator Add(TData Data_)
             {
-                SNode Node = null;
+                SNode Node;
 
                 // DetachFromDeleted ////////////////////////////////////
                 if (_DeletedHead != null)
@@ -219,7 +219,18 @@ namespace rso
                 }
                 else
                 {
-                    _Nodes.Add(new SNode());
+                    _Nodes.Add(null);
+
+                    try
+                    {
+                        _Nodes[_Nodes.Count - 1] = new SNode();
+                    }
+                    catch
+                    {
+                        _Nodes.RemoveAt(_Nodes.Count - 1);
+                        throw;
+                    }
+
                     _Nodes.Last().Data = Data_;
 
                     Node = _Nodes.Last();
@@ -234,7 +245,7 @@ namespace rso
             }
             public SIterator AddAt(Int32 Index_, TData Data_)
             {
-                SNode Node = null;
+                SNode Node;
 
                 // _Nodes 범위 이내 이면
                 if (Index_ < _Nodes.Count)
@@ -251,7 +262,18 @@ namespace rso
 
                     for (var i = LastSize; i < Index_ + 1; ++i)
                     {
-                        _Nodes.Add(new SNode());
+                        _Nodes.Add(null);
+
+                        try
+                        {
+                            _Nodes[_Nodes.Count - 1] = new SNode();
+                        }
+                        catch
+                        {
+                            _Nodes.RemoveAt(_Nodes.Count - 1);
+                            throw;
+                        }
+
                         _Nodes.Last().Index = _Nodes.Count - 1;
                         _AttachToDeleted(_Nodes.Last());
                     }

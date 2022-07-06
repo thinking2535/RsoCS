@@ -162,7 +162,7 @@ namespace rso.excel
                 throw;
             }
         }
-        public UInt64 Export<TProto>(string SheetName_, string TargetDir_, string[] ColumnNames_) where TProto : SProto, new()
+        public CStream GetStream<TProto>(string SheetName_, string[] ColumnNames_) where TProto : SProto, new()
         {
             try
             {
@@ -304,10 +304,8 @@ namespace rso.excel
                     }
                 }
 
-                DataStream.SaveFile(Path.Combine(TargetDir_, SheetName_ + "." + _TargetExtension));
                 DisposeWorksheet();
-
-                return DataStream.CheckSum();
+                return DataStream;
             }
             catch (Exception Exception_)
             {
@@ -315,6 +313,16 @@ namespace rso.excel
                 Console.WriteLine(Exception_.ToString());
                 throw;
             }
+        }
+        public CStream GetStream<TProto>(string SheetName_) where TProto : SProto, new()
+        {
+            return GetStream<TProto>(SheetName_, new TProto().MemberName().Split(new char[] { ',' }));
+        }
+        public UInt64 Export<TProto>(string SheetName_, string TargetDir_, string[] ColumnNames_) where TProto : SProto, new()
+        {
+            var Stream = GetStream<TProto>(SheetName_, ColumnNames_);
+            Stream.SaveFile(Path.Combine(TargetDir_, SheetName_ + "." + _TargetExtension));
+            return Stream.CheckSum();
         }
         public UInt64 Export<TProto>(string SheetName_, string TargetDir_) where TProto : SProto, new()
         {

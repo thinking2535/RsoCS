@@ -1,4 +1,5 @@
 using rso.Base;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -37,13 +38,13 @@ namespace rso.unity
             if (!_Pool.TryGetValue(PrefabName_, out Container))
             {
                 Container = new CListB<GameObject>(
-                        (object[] Params_) =>
+                        (dynamic[] Params_) =>
                         {
-                            return (GameObject)UnityEngine.Object.Instantiate(Resources.Load((string)Params_[0]), (Vector3)Params_[1], Quaternion.identity);
+                            return (GameObject)UnityEngine.Object.Instantiate(Resources.Load(Params_[0]), Params_[1], Quaternion.identity);
                         },
-                        (GameObject GameObject_, object[] Params_) =>
+                        (GameObject GameObject_, dynamic[] Params_) =>
                         {
-                            GameObject_.transform.localPosition = (Vector3)Params_[1];
+                            GameObject_.transform.localPosition = Params_[1];
                         });
 
                 _Pool.Add(PrefabName_, Container);
@@ -62,6 +63,28 @@ namespace rso.unity
         {
             Iterator_.gameObject.SetActive(false);
             _Pool[Iterator_.PrefabName].Remove(Iterator_.Iterator);
+        }
+        public void Reserve(string PrefabName_, Int32 Size_)
+        {
+            CListB<GameObject> Container;
+
+            if (!_Pool.TryGetValue(PrefabName_, out Container))
+            {
+                Container = new CListB<GameObject>(
+                        (object[] Params_) =>
+                        {
+                            return (GameObject)UnityEngine.Object.Instantiate(Resources.Load((string)Params_[0]), (Vector3)Params_[1], Quaternion.identity);
+                        },
+                        (GameObject GameObject_, object[] Params_) =>
+                        {
+                            GameObject_.transform.localPosition = (Vector3)Params_[1];
+                        });
+
+                _Pool.Add(PrefabName_, Container);
+            }
+
+            var Obj = Container.ReserveBuf(PrefabName_, new Vector3());
+            Obj.SetActive(false);
         }
         public void Dispose()
         {

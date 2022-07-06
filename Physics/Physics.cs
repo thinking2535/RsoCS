@@ -5,6 +5,14 @@ namespace rso.physics
 {
     public static class CPhysics
     {
+        public static float TickToFloatTime(Int64 Tick_)
+        {
+            return (float)Tick_ / 10000000.0f;
+        }
+        public static Int64 FloatTimeToTick(float Time_)
+        {
+            return (Int64)(Time_ * 10000000.0f);
+        }
         public static SPoint Vector(float Theta_, float Radius_)
         {
             return new SPoint((float)(Math.Cos(Theta_) * Radius_), (float)(Math.Sin(Theta_) * Radius_));

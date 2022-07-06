@@ -19,6 +19,10 @@ namespace rso.unity
         Int64[] _Versions = null;
         string _FullPath = "";
         List<_SLog> _Logs = new List<_SLog>(); // write and clear when exception, error and assert accur
+        public void Log(string Message_)
+        {
+            LogCallback("Log", Message_, LogType.Log);
+        }
         void LogCallback(string Condition_, string StackTrace_, LogType Type_)
         {
             _LogCallback?.Invoke(Condition_, StackTrace_, Type_);
@@ -26,8 +30,10 @@ namespace rso.unity
             if (Type_ == LogType.Log)
             {
                 _Logs.Add(new _SLog { Time = DateTime.Now, Condition = Condition_ });
+
                 if (_Logs.Count > _MaxLogSize)
                     _Logs.RemoveAt(0);
+
                 return;
             }
 

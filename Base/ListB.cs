@@ -45,8 +45,8 @@ namespace rso
         }
         public class CListB<TData> : IEnumerable where TData : new()
         {
-            public delegate TData FNew(params object[] Params_);
-            public delegate void FReset(TData Data_, params object[] Params_);
+            public delegate TData FNew(params dynamic[] Params_);
+            public delegate void FReset(TData Data_, params dynamic[] Params_);
             public struct SIterator
             {
                 public SNode Node;
@@ -214,9 +214,9 @@ namespace rso
                         return _Nodes.Count;
                 }
             }
-            public SIterator NewBuf(params object[] Params_)
+            public SIterator NewBuf(params dynamic[] Params_)
             {
-                SNode Node = null;
+                SNode Node;
 
                 // DetachFromDeleted ////////////////////////////////////
                 if (_DeletedHead != null)
@@ -227,7 +227,18 @@ namespace rso
                 }
                 else
                 {
-                    _Nodes.Add(new SNode());
+                    _Nodes.Add(null);
+
+                    try
+                    {
+                        _Nodes[_Nodes.Count - 1] = new SNode();
+                    }
+                    catch
+                    {
+                        _Nodes.RemoveAt(_Nodes.Count - 1);
+                        throw;
+                    }
+
                     _Nodes.Last().Data = _fNew(Params_);
 
                     Node = _Nodes.Last();
@@ -239,9 +250,9 @@ namespace rso
 
                 return Node.Iterator;
             }
-            public SIterator NewBufAt(Int32 Index_, params object[] Params_)
+            public SIterator NewBufAt(Int32 Index_, params dynamic[] Params_)
             {
-                SNode Node = null;
+                SNode Node;
 
                 // _Nodes 범위 이내 이면
                 if (Index_ < _Nodes.Count)
@@ -258,14 +269,24 @@ namespace rso
 
                     for (var i = LastSize; i < Index_ + 1; ++i)
                     {
-                        _Nodes.Add(new SNode());
+                        _Nodes.Add(null);
+
+                        try
+                        {
+                            _Nodes[_Nodes.Count - 1] = new SNode();
+                        }
+                        catch
+                        {
+                            _Nodes.RemoveAt(_Nodes.Count - 1);
+                            throw;
+                        }
+
                         _Nodes.Last().Index = _Nodes.Count - 1;
                         _AttachToDeleted(_Nodes.Last());
                     }
 
-                    _Nodes.Last().Data = new TData();
+                    _Nodes.Last().Data = _fNew(Params_);
                     Node = _Nodes.Last();
-                    Node.Data = _fNew(Params_);
                 }
 
                 _DetachFromDeleted(Node);
@@ -273,6 +294,26 @@ namespace rso
                 ++_Size;
 
                 return Node.Iterator;
+            }
+            public TData ReserveBuf(params dynamic[] Params_)
+            {
+                _Nodes.Add(null);
+
+                try
+                {
+                    _Nodes[_Nodes.Count - 1] = new SNode();
+                }
+                catch
+                {
+                    _Nodes.RemoveAt(_Nodes.Count - 1);
+                    throw;
+                }
+
+                _Nodes.Last().Data = _fNew(Params_);
+                _Nodes.Last().Index = _Nodes.Count - 1;
+                _AttachToDeleted(_Nodes.Last());
+
+                return _Nodes.Last().Data;
             }
             bool _Remove(SNode Node_)
             {
