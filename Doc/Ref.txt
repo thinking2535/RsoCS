@@ -1,3 +1,16 @@
+* 생성자 강제 호출
+    public class CTest
+    {
+        public CTest(Int32 Param_)
+        {
+        }
+    }
+    CTest  Test;
+    Test.GetType().GetConstructor(new Type[] { typeof(Int32) }).Invoke(Test, new object[] { 334 }); // 생성자 파라미터가 Int32 하나 있을 경우
+    Test.GetType().GetConstructor(Type.EmptyTypes).Invoke(Test, new object[] { }); // 생성자 파라미터가 없을 경우
+
+
+
 <Proto Type 동적으로 처리>
 // SData 클래스가 정의되어 있고, 그 이름을 알때 명시적으로 SData 의 객체를 생성하지 않고 값을 Set,Get 하는 방법.
             string str = "SData";

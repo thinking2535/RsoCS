@@ -1,8 +1,0 @@
-include <Rso/Net/Protocol>
-
-namespace rso
-{
-	namespace unity
-	{
-	}
-}

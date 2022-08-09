@@ -8,13 +8,8 @@ namespace rso.gameutil
         {
             var keys = new List<TKey>(Keys);
             var index = keys.BinarySearch(Key_);
-            if (index >= 0)
-                ++index; // C++ 과 통일 upper_bound 효과
-            else
+            if (index < 0)
                 index = ~index;
-
-            if (index >= keys.Count && keys.Count > 0)
-                --index; // 가장 마지막 것으로 선택
 
             if (index >= keys.Count)
                 return null;

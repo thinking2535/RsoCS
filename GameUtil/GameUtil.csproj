@@ -81,9 +81,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClosedRank.cs" />
     <Compile Include="Extension.cs" />
     <Compile Include="FixedRandom32.cs" />
     <Compile Include="FixedRandom64.cs" />
+    <Compile Include="GameUtil.cs" />
     <Compile Include="KeyCntInt.cs" />
     <Compile Include="ControlFixed.cs" />
     <Compile Include="ControlImmovable.cs" />

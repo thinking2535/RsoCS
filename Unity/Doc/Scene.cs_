@@ -1,8 +1,0 @@
-using UnityEngine;
-
-namespace rso.unity
-{
-    public class CScene : MonoBehaviour
-    {
-    }
-}

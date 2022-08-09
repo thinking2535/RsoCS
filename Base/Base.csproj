@@ -83,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base.cs" />
+    <Compile Include="DescendingComparer.cs" />
     <Compile Include="FSM.cs" />
     <Compile Include="LFQueueB.cs" />
     <Compile Include="Limiter.cs" />

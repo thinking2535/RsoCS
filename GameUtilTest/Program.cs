@@ -206,9 +206,8 @@ namespace GameUtilTest
             var r = new CRank<int, int>();
             r.Add(2, 0);
             r.Add(4, 1);
-            r.Add(6, 2);
 
-            for (int i = -1; i < 8; ++i)
+            for (int i = -1; i < 7; ++i)
             {
                 var t = r.Get(i);
                 if (t == null)

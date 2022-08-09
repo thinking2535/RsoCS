@@ -98,6 +98,10 @@ namespace rso.physics
         {
             _CurTick.Start();
         }
+        public void Stop()
+        {
+            _CurTick.Stop();
+        }
         public bool IsStarted()
         {
             return _CurTick.IsStarted();

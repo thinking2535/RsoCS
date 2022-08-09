@@ -299,7 +299,17 @@ namespace rso.excel
                         }
                         catch (Exception Exception_)
                         {
-                            throw new Exception(string.Format("Parse Error FileName[{0}] SheetName[{1}] Row[{2}] Column[{3}] Msg[{4}]", _FileName, SheetName_, r.ToString(), ExportExcelIndices[i].ToString(), Exception_.ToString()));
+                            string ColumnName = "";
+                            foreach (var NameIndex in ColumnIndices)
+                            {
+                                if (NameIndex.Value == ExportExcelIndices[i])
+                                {
+                                    ColumnName = NameIndex.Key;
+                                    break;
+                                }
+                            }
+
+                            throw new Exception(string.Format("Parse Error FileName[{0}] SheetName[{1}] Row[{2}] Column[{3}] ColumnName[{4}] Data[{5}] Msg[{6}]", _FileName, SheetName_, (r + 1).ToString(), ExportExcelIndices[i].ToString(), ColumnName, CellData.ToString(), Exception_.ToString()));
                         }
                     }
                 }
