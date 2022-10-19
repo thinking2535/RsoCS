@@ -11,8 +11,8 @@ namespace rso.physics
         Single _Delay;
         SStructMove _StructMove;
 
-        public CShuttleObject2D(STransform Transform_, SPoint BeginPos_, SPoint EndPos_, Single ScalarVelocity_, Single Delay_, SStructMove StructMove_) :
-            base(Transform_, new SPoint())
+        public CShuttleObject2D(STransform Transform_, List<CCollider2D> Colliders_, SPoint BeginPos_, SPoint EndPos_, Single ScalarVelocity_, Single Delay_, SStructMove StructMove_) :
+            base(Transform_, Colliders_, new SPoint())
         {
             fFixedUpdate = _FixedUpdate;
             _BeginPos = BeginPos_;
@@ -29,7 +29,7 @@ namespace rso.physics
             var Vector = _EndPos.GetSub(_BeginPos).GetMulti(_StructMove.Direction);
             Velocity = Vector.Multi(_ScalarVelocity / Vector.GetScalar());
         }
-        public void _FixedUpdate(Int64 Tick_)
+        public void _FixedUpdate(Int64 tick)
         {
             if (_StructMove.IsMoving)
             {

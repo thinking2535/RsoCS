@@ -45,8 +45,8 @@ namespace rso
         }
         public class CListB<TData> : IEnumerable where TData : new()
         {
-            public delegate TData FNew(params dynamic[] Params_);
-            public delegate void FReset(TData Data_, params dynamic[] Params_);
+            public delegate TData FNew(params object[] Params_);
+            public delegate void FReset(TData Data_, params object[] Params_);
             public struct SIterator
             {
                 public SNode Node;
@@ -214,7 +214,7 @@ namespace rso
                         return _Nodes.Count;
                 }
             }
-            public SIterator NewBuf(params dynamic[] Params_)
+            public SIterator NewBuf(params object[] Params_)
             {
                 SNode Node;
 
@@ -250,7 +250,7 @@ namespace rso
 
                 return Node.Iterator;
             }
-            public SIterator NewBufAt(Int32 Index_, params dynamic[] Params_)
+            public SIterator NewBufAt(Int32 Index_, params object[] Params_)
             {
                 SNode Node;
 
@@ -295,7 +295,7 @@ namespace rso
 
                 return Node.Iterator;
             }
-            public TData ReserveBuf(params dynamic[] Params_)
+            public TData ReserveBuf(params object[] Params_)
             {
                 _Nodes.Add(null);
 

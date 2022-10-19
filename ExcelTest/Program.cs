@@ -61,7 +61,7 @@ namespace ConsoleApplicationCS
             using (var MetaFile = new CExcel(Enums, "bin", 0))
             {
                 MetaFile.Open("test.xlsx");
-                MetaFile.Export<STest2>("test", "Export");
+                MetaFile.Export<STest2>("test", "Export", true);
                 //MetaFile.ExportEnum("test", "EnumType", "EnumCol", "EnumFile.cs", "public enum ETest : sbyte\n{{\n{0}\n}}\n");
             }
 

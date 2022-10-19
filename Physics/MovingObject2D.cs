@@ -1,29 +1,27 @@
 using System;
+using System.Collections.Generic;
 
 namespace rso.physics
 {
     public class CMovingObject2D : CObject2D
     {
-        public delegate void FFixedUpdate(Int64 Tick_);
-
-        public CCollider2D Collider { get; private set; } = null;
+        public List<CCollider2D> Colliders { get; private set; } = new List<CCollider2D>();
         public SPoint Velocity;
+        public float Mass = 1.0f;
 
-        public CMovingObject2D(STransform Transform_, SPoint Velocity_) :
+        public CMovingObject2D(STransform Transform_, List<CCollider2D> Colliders_, SPoint Velocity_) :
             base(Transform_)
         {
+            Colliders = Colliders_;
             Velocity = Velocity_;
+
+            foreach (var c in Colliders)
+                c.SetParent(this);
         }
         public virtual CPlayerObject2D GetPlayerObject2D()
         {
             return null;
         }
-        public FFixedUpdate fFixedUpdate;
-
-        public static void SetColliderToMovingObject2D(CCollider2D Collider_, CMovingObject2D MovingObject_) // C++°ú ÄÚµå ¸ÂÃã
-        {
-            MovingObject_.Collider = Collider_;
-            Collider_.SetParent(MovingObject_);
-        }
+        public Action<Int64> fFixedUpdate;
     }
 }

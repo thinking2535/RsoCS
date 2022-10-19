@@ -9,13 +9,17 @@ namespace rso.physics
     public class CObject2D : STransform
     {
         CObject2D _Parent = null;
-        public CObject2D(STransform Transform_) :
-            base(Transform_)
+        bool _Enabled = true;
+        public bool Enabled
         {
-        }
-        public void SetParent(CObject2D Parent_)
-        {
-            _Parent = Parent_;
+            get
+            {
+                return _Enabled && (_Parent == null || _Parent.Enabled);
+            }
+            set
+            {
+                _Enabled = value;
+            }
         }
         public SPoint Position
         {
@@ -26,6 +30,19 @@ namespace rso.physics
                 else
                     return LocalPosition;
             }
+        }
+        public CObject2D(STransform Transform_) :
+            base(Transform_)
+        {
+        }
+        public CObject2D(STransform Transform_, CObject2D Parent_) :
+            base(Transform_)
+        {
+            _Parent = Parent_;
+        }
+        public void SetParent(CObject2D Parent_)
+        {
+            _Parent = Parent_;
         }
     }
 }

@@ -91,6 +91,7 @@
     <Compile Include="ControlImmovable.cs" />
     <Compile Include="ControlMovable.cs" />
     <Compile Include="Latency.cs" />
+    <Compile Include="Limiter.cs" />
     <Compile Include="OptionJson.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol.cs" />

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using rso.core;
+using System.Linq;
 
 namespace rso.excel
 {
@@ -162,7 +163,7 @@ namespace rso.excel
                 throw;
             }
         }
-        public CStream GetStream<TProto>(string SheetName_, string[] ColumnNames_) where TProto : SProto, new()
+        public CStream GetStream<TProto>(string SheetName_, string[] ColumnNames_, bool nullRowFinish) where TProto : SProto, new()
         {
             try
             {
@@ -179,10 +180,9 @@ namespace rso.excel
                 if (_UsedRangeData == null)
                     throw new Exception(string.Format("FileName[{0}] SheetName[{1}] is empty", _FileName, SheetName_));
 
-                var RowCnt = _UsedRangeData.GetLength(0);
-
-                if (RowCnt <= _RowOffset)
-                    throw new Exception(string.Format("RowCnt[{0}] <= RowOffset[{0}]", RowCnt.ToString(), _RowOffset.ToString()));
+                Int32 rowCountToScan = _UsedRangeData.GetLength(0);
+                if (rowCountToScan <= _RowOffset)
+                    throw new Exception(string.Format("RowCnt[{0}] <= RowOffset[{0}]", rowCountToScan.ToString(), _RowOffset.ToString()));
 
                 var ColCnt = _UsedRangeData.GetLength(1);
 
@@ -223,54 +223,59 @@ namespace rso.excel
                     switch (i)
                     {
                         case "bool":
-                            SetFuncs.Add((CStream Stream_, string Data_) =>
-                            {
-                                try
-                                {
-                                    Stream_.Push(bool.Parse(Data_) ? true : false);
-                                }
-                                catch
-                                {
-                                    Stream_.Push(Int32.Parse(Data_) != 0 ? true : false);
-                                }
-                            });
+                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Data_.Length == 0 ? false : bool.Parse(Data_)); });
                             break;
                         case "int8":
-                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(SByte.Parse(Data_)); });
+                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Data_.Length == 0 ? (SByte)0 : SByte.Parse(Data_)); });
                             break;
                         case "uint8":
-                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Byte.Parse(Data_)); });
+                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Data_.Length == 0 ? (Byte)0 : Byte.Parse(Data_)); });
                             break;
                         case "int16":
-                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Int16.Parse(Data_)); });
+                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Data_.Length == 0 ? (Int16)0 : Int16.Parse(Data_)); });
                             break;
                         case "uint16":
-                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(UInt16.Parse(Data_)); });
+                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Data_.Length == 0 ? (UInt16)0 : UInt16.Parse(Data_)); });
                             break;
                         case "int32":
-                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Int32.Parse(Data_)); });
+                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Data_.Length == 0 ? (Int32)0 : Int32.Parse(Data_)); });
                             break;
                         case "uint32":
-                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(UInt32.Parse(Data_)); });
+                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Data_.Length == 0 ? (UInt32)0 : UInt32.Parse(Data_)); });
                             break;
                         case "int64":
-                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Int64.Parse(Data_)); });
+                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Data_.Length == 0 ? (Int64)0 : Int64.Parse(Data_)); });
                             break;
                         case "uint64":
-                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(UInt64.Parse(Data_)); });
+                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Data_.Length == 0 ? (UInt64)0 : UInt64.Parse(Data_)); });
                             break;
                         case "float":
-                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(float.Parse(Data_)); });
+                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Data_.Length == 0 ? 0.0f : float.Parse(Data_)); });
                             break;
                         case "double":
-                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(double.Parse(Data_)); });
+                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Data_.Length == 0 ? 0.0 : double.Parse(Data_)); });
                             break;
                         case "string":
                         case "wstring":
                             SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Data_); });
                             break;
                         case "time_point":
-                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(new TimePoint(Int64.Parse(Data_))); });
+                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Data_.Length == 0 ? new TimePoint(0) : new TimePoint(Int64.Parse(Data_))); });
+                            break;
+                        case "microseconds":
+                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Data_.Length == 0 ? Microseconds.zero : Microseconds.fromValue(Int64.Parse(Data_))); });
+                            break;
+                        case "milliseconds":
+                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Data_.Length == 0 ? Milliseconds.zero : Milliseconds.fromValue(Int64.Parse(Data_))); });
+                            break;
+                        case "seconds":
+                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Data_.Length == 0 ? Seconds.zero : Seconds.fromValue(Int64.Parse(Data_))); });
+                            break;
+                        case "minutes":
+                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Data_.Length == 0 ? Minutes.zero : Minutes.fromValue(Int64.Parse(Data_))); });
+                            break;
+                        case "hours":
+                            SetFuncs.Add((CStream Stream_, string Data_) => { Stream_.Push(Data_.Length == 0 ? Hours.zero : Hours.fromValue(Int64.Parse(Data_))); });
                             break;
                         default: // enum 으로 간주
                             SetFuncs.Add((CStream Stream_, string Data_) => { _EnumValue.PushToStream(i, Data_, Stream_); });
@@ -282,20 +287,37 @@ namespace rso.excel
                     throw new Exception(string.Format("FileName[{0}] SheetName[{1}] Proto MemberCount[{2}] does not match export ColumnCount[{3}]", _FileName, SheetName_, SetFuncs.Count, ExportExcelIndices.Count));
 
                 var DataStream = new CStream();
-                DataStream.Push(RowCnt - 1 - _RowOffset);
+                Int32 rowCountToExport = 0;
+                DataStream.Push(rowCountToExport);
 
-                for (Int32 r = 1 + _RowOffset; r < RowCnt; ++r)
+                for (Int32 r = 1 + _RowOffset; r < rowCountToScan; ++r)
                 {
+                    bool isNullRow = true;
+                    var cellDatas = new string[ExportExcelIndices.Count];
+
                     for (Int32 i = 0; i < ExportExcelIndices.Count; ++i)
                     {
-                        string CellData = "";
+                        var cell = _UsedRangeData[r + 1, ExportExcelIndices[i] + 1];
 
-                        if (_UsedRangeData[r + 1, ExportExcelIndices[i] + 1] != null)
-                            CellData = _UsedRangeData[r + 1, ExportExcelIndices[i] + 1].ToString();
+                        if (cell == null)
+                        {
+                            cellDatas[i] = "";
+                        }
+                        else
+                        {
+                            isNullRow = false;
+                            cellDatas[i] = cell.ToString();
+                        }
+                    }
 
+                    if (nullRowFinish && isNullRow)
+                        break;
+
+                    for (Int32 i = 0; i < cellDatas.Length; ++i)
+                    {
                         try
                         {
-                            SetFuncs[i](DataStream, CellData);
+                            SetFuncs[i](DataStream, cellDatas[i]);
                         }
                         catch (Exception Exception_)
                         {
@@ -309,10 +331,14 @@ namespace rso.excel
                                 }
                             }
 
-                            throw new Exception(string.Format("Parse Error FileName[{0}] SheetName[{1}] Row[{2}] Column[{3}] ColumnName[{4}] Data[{5}] Msg[{6}]", _FileName, SheetName_, (r + 1).ToString(), ExportExcelIndices[i].ToString(), ColumnName, CellData.ToString(), Exception_.ToString()));
+                            throw new Exception(string.Format("Parse Error FileName[{0}] SheetName[{1}] Row[{2}] Column[{3}] ColumnName[{4}] Data[{5}] Msg[{6}]", _FileName, SheetName_, (r + 1).ToString(), ExportExcelIndices[i].ToString(), ColumnName, cellDatas[i].ToString(), Exception_.ToString()));
                         }
                     }
+
+                    ++rowCountToExport;
                 }
+
+                DataStream.SetAt(0, rowCountToExport);
 
                 DisposeWorksheet();
                 return DataStream;
@@ -324,19 +350,19 @@ namespace rso.excel
                 throw;
             }
         }
-        public CStream GetStream<TProto>(string SheetName_) where TProto : SProto, new()
+        public CStream GetStream<TProto>(string SheetName_, bool nullRowFinish) where TProto : SProto, new()
         {
-            return GetStream<TProto>(SheetName_, new TProto().MemberName().Split(new char[] { ',' }));
+            return GetStream<TProto>(SheetName_, new TProto().MemberName().Split(new char[] { ',' }), nullRowFinish);
         }
-        public UInt64 Export<TProto>(string SheetName_, string TargetDir_, string[] ColumnNames_) where TProto : SProto, new()
+        public UInt64 Export<TProto>(string SheetName_, string TargetDir_, string[] ColumnNames_, bool nullRowFinish) where TProto : SProto, new()
         {
-            var Stream = GetStream<TProto>(SheetName_, ColumnNames_);
+            var Stream = GetStream<TProto>(SheetName_, ColumnNames_, nullRowFinish);
             Stream.SaveFile(Path.Combine(TargetDir_, SheetName_ + "." + _TargetExtension));
             return Stream.CheckSum();
         }
-        public UInt64 Export<TProto>(string SheetName_, string TargetDir_) where TProto : SProto, new()
+        public UInt64 Export<TProto>(string SheetName_, string TargetDir_, bool nullRowFinish) where TProto : SProto, new()
         {
-            return Export<TProto>(SheetName_, TargetDir_, new TProto().MemberName().Split(new char[] { ',' }));
+            return Export<TProto>(SheetName_, TargetDir_, new TProto().MemberName().Split(new char[] { ',' }), nullRowFinish);
         }
     }
 }

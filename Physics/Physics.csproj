@@ -82,11 +82,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientEngine.cs" />
-    <Compile Include="CollectionCollider2D.cs" />
     <Compile Include="Collider2D.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="Extension.cs" />
+    <Compile Include="LocalEngine.cs" />
     <Compile Include="MovingObject2D.cs" />
+    <Compile Include="NetworkEngine.cs" />
     <Compile Include="Object2D.cs" />
     <Compile Include="ObjectStraight.cs" />
     <Compile Include="Physics.cs" />
