@@ -152,7 +152,7 @@ namespace rso
             public override float GetFloat() { return _Data.ValueFloat; }
             public override double GetDouble() { return _Data.ValueDouble; }
             public override TimePoint GetTimePoint() { return new TimePoint(_Data.ValueLong); }
-            public override DateTime GetDateTime() { return GetTimePoint().ToDateTime(); }
+            public override DateTime GetDateTime() { return GetTimePoint().toDateTime(); }
             public void SetData(char Data_)
             {
                 _TypeCode = TypeCode.Char;
@@ -210,11 +210,11 @@ namespace rso
             }
             public void SetData(TimePoint Data_)
             {
-                SetData(Data_.Ticks);
+                SetData(Data_.ticks);
             }
             public void SetData(DateTime Data_)
             {
-                SetData(Data_.ToTimePoint().Ticks);
+                SetData(Data_.ToTimePoint().ticks);
             }
         }
     }

@@ -5,40 +5,40 @@ namespace rso.gameutil
 {
     public class CLatency
     {
-        readonly TimeSpan _MaxLatency;
-        readonly TimeSpan _SubDuration = TimeSpan.FromTicks(100000);
-        TimeSpan _Offset = TimeSpan.MinValue;
-        TimeSpan _Latency = TimeSpan.Zero;
+        readonly Duration _maxLatency;
+        readonly Duration _subDuration = new Duration(100000);
+        Duration _offset = Duration.zero;
+        Duration _latency = Duration.zero;
 
-        public CLatency(TimeSpan MaxLatency_)
+        public CLatency(Duration maxLatency)
         {
-            _MaxLatency = MaxLatency_;
+            _maxLatency = maxLatency;
         }
-        public void Recv(TimePoint Time_, TimePoint RemoteTime_)
+        public void recv(TimePoint time, TimePoint remoteTime)
         {
-            var Duration = RemoteTime_ - Time_;
-            if (_Offset < Duration)
-                _Offset = Duration;
+            var duration = remoteTime - time;
+            if (_offset < duration)
+                _offset = duration;
 
-            Duration = (Time_ + _Offset) - RemoteTime_;
-            if (Duration > _MaxLatency)
-                _Latency = _MaxLatency;
-            else if (_Latency - Duration > _SubDuration)
-                _Latency -= _SubDuration;
+            duration = (time + _offset) - remoteTime;
+            if (duration > _maxLatency)
+                _latency = _maxLatency;
+            else if (_latency - duration > _subDuration)
+                _latency -= _subDuration;
             else
-                _Latency = Duration;
+                _latency = duration;
         }
-        public bool Proc(TimePoint Time_, TimePoint RemoteTime_)
+        public bool proc(TimePoint time, TimePoint remoteTime)
         {
-            return Time_ + _Offset - _Latency >= RemoteTime_;
+            return time + _offset - _latency >= remoteTime;
         }
-        public TimeSpan GetOffset()
+        public Duration getOffset()
         {
-            return _Offset;
+            return _offset;
         }
-        public TimeSpan GetLatency()
+        public Duration getLatency()
         {
-            return _Latency;
+            return _latency;
         }
     }
 }

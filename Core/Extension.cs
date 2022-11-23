@@ -7,17 +7,9 @@ namespace rso
     {
         public static class Extension
         {
-            public static DateTime BaseDateTime()
+            public static TimePoint ToTimePoint(this DateTime self)
             {
-                return new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            }
-            public static Int64 ToTimePointTicks(this DateTime seld)
-            {
-                return (seld.ToUniversalTime() - BaseDateTime()).Ticks;
-            }
-            public static TimePoint ToTimePoint(this DateTime slef)
-            {
-                return new TimePoint(slef);
+                return new TimePoint(self);
             }
             public static Int64 TotalMillisecondsLong(this TimeSpan self)
             {

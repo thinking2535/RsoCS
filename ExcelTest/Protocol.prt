@@ -1,18 +1,4 @@
-typedef int32 TA
-typedef array<TA,2> TAs
 struct STest
 {
-	TAs a
-}
-
-enum class EEnumType
-{
-    A
-    BB
-    CCC
-}
-struct STest2
-{
-    EEnumType EnumType
-    wstring name
+    array<int32,2> statuses
 }

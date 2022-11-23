@@ -84,13 +84,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core.cs" />
-    <Compile Include="Hours.cs" />
-    <Compile Include="Microseconds.cs" />
+    <Compile Include="Duration.cs" />
     <Compile Include="EnumChecker.cs" />
     <Compile Include="Extension.cs" />
-    <Compile Include="Milliseconds.cs" />
-    <Compile Include="Minutes.cs" />
-    <Compile Include="Seconds.cs" />
     <Compile Include="SortedMultiMap.cs" />
     <Compile Include="SortedMultiSet.cs" />
     <Compile Include="Stream.cs" />

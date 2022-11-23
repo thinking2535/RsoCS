@@ -44,7 +44,7 @@ namespace MonitorClient
                 return;
             }
 
-            var TIck = DateTime.MinValue.ToTimePoint().Ticks;
+            var TIck = DateTime.MinValue.ToTimePoint().ticks;
 
             TimePoint EndTime;
             if (cbPermanent.Checked)

@@ -562,83 +562,14 @@ namespace CoreTest
         //}
         static void Main(string[] args)
         {
-            var stm = new CStream();
-            var engineRect = new SEngineRect(new SPoint(1, 2), new SPoint(3, 4), new SPoint(5, 6));
-            var structure = new SStructure(engineRect, new SPoint(99, 10));
-            var mapMulti = new SMapMulti();
-
-
-            var strs = new List<String>{ "a", "b" };
-            var input = strs;
-            stm.Push(input);
-
-
-            var output = new List<String>();
-            stm.Pop(ref output);
-
+            {
+                var stream = new CStream();
+                stream.Push(Hours.zero);
+            }
             return;
-
-
-            Boolean b = default(Boolean);
-            sbyte sby = default(sbyte);
-            byte by = default(byte);
-            Int16 i16 = default(Int16);
-            UInt16 ui16 = default(UInt16);
-            Int32 i32 = default(Int32);
-            UInt32 ui32 = default(UInt32);
-            Int64 i64 = default(Int64);
-            UInt64 ui64 = default(UInt64);
-
-            float flt = default(float);
-            double dbl = default(double);
-
-            DateTime dt = default(DateTime);
-            TimePoint tp = default(TimePoint);
-            STest st = default(STest);
-
-            CTest ct = default(CTest);
-            string str = string.Empty;
-            ETest e = default(ETest);
-
-            var lb = new List<Boolean>();
-            var ld = new Dictionary<Boolean, int>();
-            var li64 = new List<Int64>();
-            var ls = new List<string>();
-            var ltp = new List<TimePoint>();
-            var atp = new TimePoint[5];
-
-            return;
-
-            Console.WriteLine(SEnumChecker.GetStdName(tp));
-            Console.WriteLine(SEnumChecker.GetStdName(ui32));
-            Console.WriteLine(SEnumChecker.GetStdName(by));
-            Console.WriteLine(SEnumChecker.GetStdName(dt));
-            Console.WriteLine(SEnumChecker.GetStdName(str));
-
-            Console.WriteLine(SEnumChecker.GetStdName(lb));
-            Console.WriteLine(SEnumChecker.GetStdName(ld));
-            Console.WriteLine(SEnumChecker.GetStdName(li64));
-            Console.WriteLine(SEnumChecker.GetStdName(ls));
-            Console.WriteLine(SEnumChecker.GetStdName(ltp));
-            Console.WriteLine(SEnumChecker.GetStdName(atp));
-
-            return;
-            //PushTest(Convert.ChangeType(Value_, Enum.GetUnderlyingType(typeof(T))));
-
 
 #if true
-            var h = new HashSet<TimePoint>();
-            var d = new Dictionary<TimePoint, int>();
-            h.Add(new TimePoint(2));
-            h.Add(new TimePoint(2));
 
-            d.Add(new TimePoint(302342342341), 2);
-            d.Add(new TimePoint(302342342340), 3);
-
-            foreach (var i in d)
-            {
-                Console.WriteLine(i.Key.ToString() + i.Value);
-            }
 
 #elif true // Json
 

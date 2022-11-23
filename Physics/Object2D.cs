@@ -10,26 +10,20 @@ namespace rso.physics
     {
         CObject2D _Parent = null;
         bool _Enabled = true;
-        public bool Enabled
+        public bool GetEnabled()
         {
-            get
-            {
-                return _Enabled && (_Parent == null || _Parent.Enabled);
-            }
-            set
-            {
-                _Enabled = value;
-            }
+            return _Enabled && (_Parent == null || _Parent.GetEnabled());
         }
-        public SPoint Position
+        public void SetEnabled(bool value)
         {
-            get
-            {
-                if (_Parent != null)
-                    return _Parent.Position.GetAdd(LocalPosition);
-                else
-                    return LocalPosition;
-            }
+            _Enabled = value;
+        }
+        public SPoint GetPosition()
+        {
+            if (_Parent != null)
+                return _Parent.GetPosition().GetAdd(LocalPosition);
+            else
+                return LocalPosition;
         }
         public CObject2D(STransform Transform_) :
             base(Transform_)

@@ -4,13 +4,19 @@ namespace rso.physics
 {
     public class CRectCollider2D : CCollider2D
     {
-        SRectCollider2D _Collider = null;
-        public SRect Rect
+        static SPoint _getRelativeVelocity(CMovingObject2D movingObject)
         {
-            get
-            {
-                return _Collider.ToRect().Multi(LocalScale).Add(Position);
-            }
+            return movingObject.Velocity.GetMulti(-1.0f);
+        }
+        static SPoint _getRelativeVelocity(CMovingObject2D movingObject, CMovingObject2D otherMovingObject)
+        {
+            return otherMovingObject.Velocity.GetSub(movingObject.Velocity);
+        }
+
+        SRectCollider2D _Collider = null;
+        public SRect getRect()
+        {
+            return _Collider.ToRect().Multi(LocalScale).Add(GetPosition());
         }
 
         public CRectCollider2D(STransform Transform_, Int32 Number_, SRectCollider2D Collider_) :
@@ -35,97 +41,142 @@ namespace rso.physics
         {
             _Collider.Size.Y = Y_;
         }
-        public override bool CheckOverlapped(Int64 tick, CMovingObject2D MovingObject_, CCollider2D OtherCollider_, CMovingObject2D OtherMovingObject_)
+        public override bool checkOverlapped(Int64 tick, CMovingObject2D movingObject, CCollider2D otherCollider)
         {
-            return OtherCollider_.CheckOverlapped(tick, OtherMovingObject_, this, MovingObject_);
+            return otherCollider.checkOverlapped(tick, this, movingObject);
         }
-        public override bool CheckOverlapped(Int64 tick, CMovingObject2D MovingObject_, CRectCollider2D OtherRectCollider_, CMovingObject2D OtherMovingObject_)
+        public override bool checkOverlapped(Int64 tick, CMovingObject2D movingObject, CCollider2D otherCollider, CMovingObject2D otherMovingObject)
         {
-            CPlayerObject2D PlayerObject = MovingObject_?.GetPlayerObject2D();
-            CPlayerObject2D OtherPlayerObject = OtherMovingObject_?.GetPlayerObject2D();
+            return otherCollider.checkOverlapped(tick, otherMovingObject, this, movingObject);
+        }
+        public override bool checkOverlapped(Int64 tick, CMovingObject2D movingObject, CRectCollider2D otherRectCollider)
+        {
+            var rect = getRect();
+            var otherRect = otherRectCollider.getRect();
 
-            if (!Enabled || !OtherRectCollider_.Enabled || !CPhysics.IsOverlappedRectRect(Rect, OtherRectCollider_.Rect))
+            if (!_isOverlapped(rect, otherRectCollider, otherRect))
             {
-                PlayerObject?.NotOverlapped(tick, this, OtherRectCollider_);
-                OtherPlayerObject?.NotOverlapped(tick, OtherRectCollider_, this);
+                movingObject.NotOverlapped(tick, this, otherRectCollider);
                 return false;
             }
 
-            if (IsTrigger || OtherRectCollider_.IsTrigger)
+            if (IsTrigger || otherRectCollider.IsTrigger)
             {
-                if (PlayerObject != null)
-                {
-                    var DoRemove = PlayerObject.Triggered(this, OtherRectCollider_, OtherMovingObject_);
-
-                    if (OtherPlayerObject == null)
-                        return DoRemove;
-
-                    OtherPlayerObject.Triggered(OtherRectCollider_, this, MovingObject_);
-                    return false;
-                }
-                else if (OtherPlayerObject != null)
-                {
-                    return OtherPlayerObject.Triggered(OtherRectCollider_, this, MovingObject_);
-                }
-                else
-                {
-                    return false;
-                }
+                return movingObject.Triggered(tick, this, otherRectCollider, null);
             }
             else
             {
-                if (PlayerObject != null)
+                if (!movingObject.isKinematic)
                 {
-                    var Normal = _FixPositionAndGetNormal(MovingObject_, Rect, OtherRectCollider_.Rect);
+                    var relativeVelocity = _getRelativeVelocity(movingObject);
+                    var normal = _fixPositionAndGetNormal(relativeVelocity, rect, movingObject, otherRect);
 
-                    var DoRemove = PlayerObject.Collided(
+                    return movingObject.Collided(
                         tick,
                         new SCollision2D(
-                            OtherMovingObject_ != null ? OtherMovingObject_.Velocity.GetSub(MovingObject_.Velocity) : MovingObject_.Velocity.GetMulti(-1.0f),
-                            Normal,
+                            relativeVelocity,
+                            normal,
                             this,
-                            OtherRectCollider_,
-                            OtherMovingObject_));
-
-                    if (OtherPlayerObject == null)
-                        return DoRemove;
-
-                    OtherPlayerObject.Collided(
-                        tick,
-                        new SCollision2D(
-                            MovingObject_.Velocity.GetSub(OtherMovingObject_.Velocity),
-                            Normal.Multi(-1.0f),
-                            OtherRectCollider_,
-                            this,
-                            MovingObject_));
-                    return false; // PlayerObject, OtherPlayerObject 둘다 유효하면 return false; Player가 Player가 아닌 대상만 Remove 할 수 있음.
+                            otherRectCollider,
+                            null));
                 }
-                else if (OtherPlayerObject != null)
+            }
+
+            return false;
+        }
+        public override bool checkOverlapped(Int64 tick, CRectCollider2D otherRectCollider, CMovingObject2D otherMovingObject)
+        {
+            return otherRectCollider.checkOverlapped(tick, otherMovingObject, this);
+        }
+        public override bool checkOverlapped(Int64 tick, CMovingObject2D movingObject, CRectCollider2D otherRectCollider, CMovingObject2D otherMovingObject)
+        {
+            var rect = getRect();
+            var otherRect = otherRectCollider.getRect();
+
+            if (!_isOverlapped(rect, otherRectCollider, otherRect))
+            {
+                movingObject.NotOverlapped(tick, this, otherRectCollider);
+                otherMovingObject.NotOverlapped(tick, otherRectCollider, this);
+                return false;
+            }
+
+            if (IsTrigger || otherRectCollider.IsTrigger)
+            {
+                otherMovingObject.Triggered(tick, otherRectCollider, this, movingObject);
+                return movingObject.Triggered(tick, this, otherRectCollider, otherMovingObject);
+            }
+            else
+            {
+                if (!movingObject.isKinematic && !otherMovingObject.isKinematic)
                 {
-                    var Normal = _FixPositionAndGetNormal(OtherMovingObject_, OtherRectCollider_.Rect, Rect);
-                    return OtherPlayerObject.Collided(
+                    var relativeVelocity = _getRelativeVelocity(movingObject, otherMovingObject);
+                    var normal = _fixPositionAndGetNormal(relativeVelocity, rect, movingObject, otherRect, otherMovingObject);
+
+                    otherMovingObject.Collided(
                         tick,
                         new SCollision2D(
-                            OtherMovingObject_.Velocity.GetMulti(-1.0f),
-                            Normal,
-                            OtherRectCollider_,
+                            relativeVelocity.GetMulti(-1.0f),
+                            normal.GetMulti(-1.0f),
+                            otherRectCollider,
                             this,
-                            MovingObject_));
+                            movingObject));
+
+                    return movingObject.Collided(
+                        tick,
+                        new SCollision2D(
+                            relativeVelocity,
+                            normal,
+                            this,
+                            otherRectCollider,
+                            otherMovingObject));
                 }
                 else
                 {
-                    return false;
+                    if (!movingObject.isKinematic)
+                    {
+                        var relativeVelocity = _getRelativeVelocity(movingObject, otherMovingObject);
+                        var normal = _fixPositionAndGetNormal(relativeVelocity, rect, movingObject, otherRect, otherMovingObject);
+
+                        return movingObject.Collided(
+                            tick,
+                            new SCollision2D(
+                                relativeVelocity,
+                                normal,
+                                this,
+                                otherRectCollider,
+                                otherMovingObject));
+                    }
+                    else if (!otherMovingObject.isKinematic)
+                    {
+                        var relativeVelocity = _getRelativeVelocity(otherMovingObject, movingObject);
+                        var normal = _fixPositionAndGetNormal(relativeVelocity, otherRect, otherMovingObject, rect, movingObject);
+
+                        return otherMovingObject.Collided(
+                            tick,
+                            new SCollision2D(
+                                relativeVelocity,
+                                normal,
+                                otherRectCollider,
+                                this,
+                                movingObject));
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
             }
         }
-        SPoint _FixPositionAndGetNormal(CMovingObject2D MovingObject_, SRect Rect_, SRect RectOther_)
+        bool _isOverlapped(SRect rect, CRectCollider2D otherRectCollider, SRect otherRect)
         {
-            var rl = RectOther_.Right - Rect_.Left;
-            var lr = Rect_.Right - RectOther_.Left;
-            var tb = RectOther_.Top - Rect_.Bottom;
-            var bt = Rect_.Top - RectOther_.Bottom;
-
-            var Normal = new SPoint();
+            return GetEnabled() && otherRectCollider.GetEnabled() && CPhysics.IsOverlappedRectRect(rect, otherRect);
+        }
+        SPoint _fixPositionAndGetNormal(SPoint relativeVelocity, SRect rect, CMovingObject2D movingObject, SRect otherRect)
+        {
+            var rl = otherRect.Right - rect.Left;
+            var lr = rect.Right - otherRect.Left;
+            var tb = otherRect.Top - rect.Bottom;
+            var bt = rect.Top - otherRect.Bottom;
 
             if (rl < lr) // Normal.X : +
             {
@@ -134,16 +185,16 @@ namespace rso.physics
                     if (rl < tb) // select Normal.X
                     {
                         if (rl > CEngine.ContactOffset)
-                            MovingObject_.LocalPosition.X += (rl - CEngine.ContactOffset);
+                            _moveAwayX(rl - CEngine.ContactOffset, movingObject);
 
-                        Normal.X = 1.0f;
+                        return _inelasticCollisionX(new SPoint(1.0f, 0.0f), relativeVelocity, movingObject);
                     }
                     else // select Normal.Y
                     {
                         if (tb > CEngine.ContactOffset)
-                            MovingObject_.LocalPosition.Y += (tb - CEngine.ContactOffset);
+                            _moveAwayY(tb - CEngine.ContactOffset, movingObject);
 
-                        Normal.Y = 1.0f;
+                        return _inelasticCollisionY(new SPoint(0.0f, 1.0f), relativeVelocity, movingObject);
                     }
                 }
                 else // Normal.Y : -
@@ -151,16 +202,16 @@ namespace rso.physics
                     if (rl < bt) // select Normal.X
                     {
                         if (rl > CEngine.ContactOffset)
-                            MovingObject_.LocalPosition.X += (rl - CEngine.ContactOffset);
+                            _moveAwayX(rl - CEngine.ContactOffset, movingObject);
 
-                        Normal.X = 1.0f;
+                        return _inelasticCollisionX(new SPoint(1.0f, 0.0f), relativeVelocity, movingObject);
                     }
                     else // select Normal.Y
                     {
                         if (bt > CEngine.ContactOffset)
-                            MovingObject_.LocalPosition.Y += (CEngine.ContactOffset - bt);
+                            _moveAwayY(CEngine.ContactOffset - bt, movingObject);
 
-                        Normal.Y = -1.0f;
+                        return _inelasticCollisionY(new SPoint(0.0f, -1.0f), relativeVelocity, movingObject);
                     }
                 }
             }
@@ -171,16 +222,16 @@ namespace rso.physics
                     if (lr < tb) // select Normal.X
                     {
                         if (lr > CEngine.ContactOffset)
-                            MovingObject_.LocalPosition.X += (CEngine.ContactOffset - lr);
+                            _moveAwayX(CEngine.ContactOffset - lr, movingObject);
 
-                        Normal.X = -1.0f;
+                        return _inelasticCollisionX(new SPoint(-1.0f, 0.0f), relativeVelocity, movingObject);
                     }
                     else // select Normal.Y
                     {
                         if (tb > CEngine.ContactOffset)
-                            MovingObject_.LocalPosition.Y += (tb - CEngine.ContactOffset);
+                            _moveAwayY(tb - CEngine.ContactOffset, movingObject);
 
-                        Normal.Y = 1.0f;
+                        return _inelasticCollisionY(new SPoint(0.0f, 1.0f), relativeVelocity, movingObject);
                     }
                 }
                 else // Normal.Y : -
@@ -188,21 +239,169 @@ namespace rso.physics
                     if (lr < bt) // select Normal.X
                     {
                         if (lr > CEngine.ContactOffset)
-                            MovingObject_.LocalPosition.X += (CEngine.ContactOffset - lr);
+                            _moveAwayX(CEngine.ContactOffset - lr, movingObject);
 
-                        Normal.X = -1.0f;
+                        return _inelasticCollisionX(new SPoint(-1.0f, 0.0f), relativeVelocity, movingObject);
                     }
                     else // select Normal.Y
                     {
                         if (bt > CEngine.ContactOffset)
-                            MovingObject_.LocalPosition.Y += (CEngine.ContactOffset - bt);
+                            _moveAwayY(CEngine.ContactOffset - bt, movingObject);
 
-                        Normal.Y = -1.0f;
+                        return _inelasticCollisionY(new SPoint(0.0f, -1.0f), relativeVelocity, movingObject);
                     }
                 }
             }
+        }
+        SPoint _fixPositionAndGetNormal(SPoint relativeVelocity, SRect rect, CMovingObject2D movingObject, SRect otherRect, CMovingObject2D otherMovingObject)
+        {
+            var rl = otherRect.Right - rect.Left;
+            var lr = rect.Right - otherRect.Left;
+            var tb = otherRect.Top - rect.Bottom;
+            var bt = rect.Top - otherRect.Bottom;
 
-            return Normal;
+            if (rl < lr) // Normal.X : +
+            {
+                if (tb < bt) // Normal.Y : +
+                {
+                    if (rl < tb) // select Normal.X
+                    {
+                        if (rl > CEngine.ContactOffset)
+                            _moveAwayX(rl - CEngine.ContactOffset, movingObject, otherMovingObject);
+
+                        return _inelasticCollisionX(new SPoint(1.0f, 0.0f), relativeVelocity, movingObject, otherMovingObject);
+                    }
+                    else // select Normal.Y
+                    {
+                        if (tb > CEngine.ContactOffset)
+                            _moveAwayY(tb - CEngine.ContactOffset, movingObject, otherMovingObject);
+
+                        return _inelasticCollisionY(new SPoint(0.0f, 1.0f), relativeVelocity, movingObject, otherMovingObject);
+                    }
+                }
+                else // Normal.Y : -
+                {
+                    if (rl < bt) // select Normal.X
+                    {
+                        if (rl > CEngine.ContactOffset)
+                            _moveAwayX(rl - CEngine.ContactOffset, movingObject, otherMovingObject);
+
+                        return _inelasticCollisionX(new SPoint(1.0f, 0.0f), relativeVelocity, movingObject, otherMovingObject);
+                    }
+                    else // select Normal.Y
+                    {
+                        if (bt > CEngine.ContactOffset)
+                            _moveAwayY(CEngine.ContactOffset - bt, movingObject, otherMovingObject);
+
+                        return _inelasticCollisionY(new SPoint(0.0f, -1.0f), relativeVelocity, movingObject, otherMovingObject);
+                    }
+                }
+            }
+            else // Normal.X : -
+            {
+                if (tb < bt) // Normal.Y : +
+                {
+                    if (lr < tb) // select Normal.X
+                    {
+                        if (lr > CEngine.ContactOffset)
+                            _moveAwayX(CEngine.ContactOffset - lr, movingObject, otherMovingObject);
+
+                        return _inelasticCollisionX(new SPoint(-1.0f, 0.0f), relativeVelocity, movingObject, otherMovingObject);
+                    }
+                    else // select Normal.Y
+                    {
+                        if (tb > CEngine.ContactOffset)
+                            _moveAwayY(tb - CEngine.ContactOffset, movingObject, otherMovingObject);
+
+                        return _inelasticCollisionY(new SPoint(0.0f, 1.0f), relativeVelocity, movingObject, otherMovingObject);
+                    }
+                }
+                else // Normal.Y : -
+                {
+                    if (lr < bt) // select Normal.X
+                    {
+                        if (lr > CEngine.ContactOffset)
+                            _moveAwayX(CEngine.ContactOffset - lr, movingObject, otherMovingObject);
+
+                        return _inelasticCollisionX(new SPoint(-1.0f, 0.0f), relativeVelocity, movingObject, otherMovingObject);
+                    }
+                    else // select Normal.Y
+                    {
+                        if (bt > CEngine.ContactOffset)
+                            _moveAwayY(CEngine.ContactOffset - bt, movingObject, otherMovingObject);
+
+                        return _inelasticCollisionY(new SPoint(0.0f, -1.0f), relativeVelocity, movingObject, otherMovingObject);
+                    }
+                }
+            }
+        }
+        static void _moveAwayX(float overlapped, CMovingObject2D movingObject)
+        {
+            movingObject.LocalPosition.X += overlapped;
+        }
+        static void _moveAwayY(float overlapped, CMovingObject2D movingObject)
+        {
+            movingObject.LocalPosition.Y += overlapped;
+        }
+        static void _moveAwayX(float overlapped, CMovingObject2D movingObject, CMovingObject2D otherMovingObject)
+        {
+            if (otherMovingObject.isKinematic)
+            {
+                _moveAwayX(overlapped, movingObject);
+                return;
+            }
+
+            movingObject.LocalPosition.X += (overlapped * otherMovingObject.Mass / (movingObject.Mass + otherMovingObject.Mass));
+            otherMovingObject.LocalPosition.X -= (overlapped * movingObject.Mass / (movingObject.Mass + otherMovingObject.Mass));
+        }
+        static void _moveAwayY(float overlapped, CMovingObject2D movingObject, CMovingObject2D otherMovingObject)
+        {
+            if (otherMovingObject.isKinematic)
+            {
+                _moveAwayY(overlapped, movingObject);
+                return;
+            }
+
+            movingObject.LocalPosition.Y += (overlapped * otherMovingObject.Mass / (movingObject.Mass + otherMovingObject.Mass));
+            otherMovingObject.LocalPosition.Y -= (overlapped * movingObject.Mass / (movingObject.Mass + otherMovingObject.Mass));
+        }
+        static SPoint _inelasticCollisionX(SPoint normal, SPoint relativeVelocity, CMovingObject2D movingObject)
+        {
+            if (normal.X * relativeVelocity.X > 0.0f)
+                movingObject.Velocity.X = 0.0f;
+
+            return normal;
+        }
+        static SPoint _inelasticCollisionY(SPoint normal, SPoint relativeVelocity, CMovingObject2D movingObject)
+        {
+            if (normal.Y * relativeVelocity.Y > 0.0f)
+                movingObject.Velocity.Y = 0.0f;
+
+            return normal;
+        }
+        static SPoint _inelasticCollisionX(SPoint normal, SPoint relativeVelocity, CMovingObject2D movingObject, CMovingObject2D otherMovingObject)
+        {
+            if (normal.X * relativeVelocity.X > 0.0f)
+            {
+                if (otherMovingObject.isKinematic)
+                    movingObject.Velocity.X = otherMovingObject.Velocity.X;
+                else
+                    movingObject.Velocity.X = otherMovingObject.Velocity.X = (movingObject.Velocity.X * movingObject.Mass + otherMovingObject.Velocity.X * otherMovingObject.Mass) / (movingObject.Mass + otherMovingObject.Mass);
+            }
+
+            return normal;
+        }
+        static SPoint _inelasticCollisionY(SPoint normal, SPoint relativeVelocity, CMovingObject2D movingObject, CMovingObject2D otherMovingObject)
+        {
+            if (normal.Y * relativeVelocity.Y > 0.0f)
+            {
+                if (otherMovingObject.isKinematic)
+                    movingObject.Velocity.Y = otherMovingObject.Velocity.Y;
+                else
+                    movingObject.Velocity.Y = otherMovingObject.Velocity.Y = (movingObject.Velocity.Y * movingObject.Mass + otherMovingObject.Velocity.Y * otherMovingObject.Mass) / (movingObject.Mass + otherMovingObject.Mass);
+            }
+
+            return normal;
         }
     }
 }

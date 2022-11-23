@@ -14,6 +14,7 @@ namespace rso.physics
         public CShuttleObject2D(STransform Transform_, List<CCollider2D> Colliders_, SPoint BeginPos_, SPoint EndPos_, Single ScalarVelocity_, Single Delay_, SStructMove StructMove_) :
             base(Transform_, Colliders_, new SPoint())
         {
+            isKinematic = true;
             fFixedUpdate = _FixedUpdate;
             _BeginPos = BeginPos_;
             _EndPos = EndPos_;

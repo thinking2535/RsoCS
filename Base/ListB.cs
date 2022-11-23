@@ -366,20 +366,6 @@ namespace rso
             {
                 return new CListBEnumerator<TData>(_NewedHead);
             }
-            public Int32 RemoveAll(Predicate<TData> match)
-            {
-                Int32 OldCount = Count;
-                for (var it = Begin(); it;)
-                {
-                    var itCheck = it;
-                    it.MoveNext();
-
-                    if (match(itCheck.Data))
-                        Remove(itCheck);
-                }
-
-                return (OldCount - Count);
-            }
         }
     }
 }

@@ -187,12 +187,12 @@ namespace rso
             }
             public JsonDataArray Push(TimePoint Data_)
             {
-                _Array.Add(new JsonDataNumber(Data_.Ticks));
+                _Array.Add(new JsonDataNumber(Data_.ticks));
                 return this;
             }
             public JsonDataArray Push(DateTime Data_)
             {
-                _Array.Add(new JsonDataNumber(Data_.ToTimePoint().Ticks));
+                _Array.Add(new JsonDataNumber(Data_.ToTimePoint().ticks));
                 return this;
             }
             public JsonDataArray Push(CStream Data_)

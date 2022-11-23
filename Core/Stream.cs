@@ -271,52 +271,61 @@ namespace rso
             }
             public CStream Pop(ref TimePoint Value_)
             {
-                Pop(ref Value_.Ticks);
+                Pop(ref Value_.ticks);
+
+                return this;
+            }
+            public CStream Pop(ref Duration value)
+            {
+                Int64 Ticks = 0;
+                Pop(ref Ticks);
+
+                value = new Duration(Ticks);
 
                 return this;
             }
             public CStream Pop(ref Microseconds value)
             {
-                Int64 Ticks = 0;
-                Pop(ref Ticks);
+                Int64 ticks = 0;
+                Pop(ref ticks);
 
-                value = new Microseconds(Ticks);
+                value = Microseconds.fromTicks(ticks);
 
                 return this;
             }
             public CStream Pop(ref Milliseconds value)
             {
-                Int64 Ticks = 0;
-                Pop(ref Ticks);
+                Int64 ticks = 0;
+                Pop(ref ticks);
 
-                value = new Milliseconds(Ticks);
+                value = Milliseconds.fromTicks(ticks);
 
                 return this;
             }
             public CStream Pop(ref Seconds value)
             {
-                Int64 Ticks = 0;
-                Pop(ref Ticks);
+                Int64 ticks = 0;
+                Pop(ref ticks);
 
-                value = new Seconds(Ticks);
+                value = Seconds.fromTicks(ticks);
 
                 return this;
             }
             public CStream Pop(ref Minutes value)
             {
-                Int64 Ticks = 0;
-                Pop(ref Ticks);
+                Int64 ticks = 0;
+                Pop(ref ticks);
 
-                value = new Minutes(Ticks);
+                value = Minutes.fromTicks(ticks);
 
                 return this;
             }
             public CStream Pop(ref Hours value)
             {
-                Int64 Ticks = 0;
-                Pop(ref Ticks);
+                Int64 ticks = 0;
+                Pop(ref ticks);
 
-                value = new Hours(Ticks);
+                value = Hours.fromTicks(ticks);
 
                 return this;
             }
@@ -537,7 +546,12 @@ namespace rso
             }
             public CStream Push(TimePoint Value_)
             {
-                Push(Value_.Ticks);
+                Push(Value_.ticks);
+                return this;
+            }
+            public CStream Push(Duration value)
+            {
+                Push(value.ticks);
                 return this;
             }
             public CStream Push(Microseconds value)
@@ -798,6 +812,9 @@ namespace rso
                                 case "rso.core.TimePoint":
                                     Push((TimePoint)(object)Data_);
                                     break;
+                                case "rso.core.Duration":
+                                    Push((Duration)(object)Data_);
+                                    break;
                                 case "rso.core.Microseconds":
                                     Push((Microseconds)(object)Data_);
                                     break;
@@ -933,6 +950,13 @@ namespace rso
                                 case "rso.core.TimePoint":
                                     {
                                         var Data = (TimePoint)(object)Data_;
+                                        Pop(ref Data);
+                                        Data_ = (T)(object)Data;
+                                    }
+                                    break;
+                                case "rso.core.Duration":
+                                    {
+                                        var Data = (Duration)(object)Data_;
                                         Pop(ref Data);
                                         Data_ = (T)(object)Data;
                                     }

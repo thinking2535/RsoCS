@@ -19,7 +19,7 @@ namespace rso.physics
     public class CPlayerObject2D : CMovingObject2D
     {
         public delegate bool FCollision(Int64 tick, SCollision2D Collision_);
-        public delegate bool FTrigger(CCollider2D Collider_);
+        public delegate bool FTrigger(Int64 tick, CCollider2D Collider_);
 
         public FCollision fCollisionEnter;
         public FCollision fCollisionStay;
@@ -37,15 +37,15 @@ namespace rso.physics
             base(Transform_, Colliders_, Velocity_)
         {
         }
-        public override CPlayerObject2D GetPlayerObject2D()
+        public override bool isPlayerObject()
         {
-            return this;
+            return true;
         }
         public bool CheckOverlapped(Int64 tick, CCollider2D OtherCollider_)
         {
             foreach (var c in Colliders)
             {
-                if (c.CheckOverlapped(tick, this, OtherCollider_, null))
+                if (c.checkOverlapped(tick, this, OtherCollider_))
                     return true;
             }
 
@@ -57,15 +57,17 @@ namespace rso.physics
             {
                 foreach (var o in OtherMovingObject_.Colliders)
                 {
-                    if (c.CheckOverlapped(tick, this, o, OtherMovingObject_))
+                    if (c.checkOverlapped(tick, this, o, OtherMovingObject_))
                         return true;
                 }
             }
 
             return false;
         }
-        public bool Collided(Int64 tick, SCollision2D Collision_)
+        public override bool Collided(Int64 tick, SCollision2D Collision_)
         {
+            base.Collided(tick, Collision_);
+
             var Key = new SContactPoint2D(Collision_.Collider, Collision_.OtherCollider);
             if (!_ContactPoint2Ds.ContainsKey(Key))
             {
@@ -77,35 +79,12 @@ namespace rso.physics
                     return false;
             }
 
-            // 밀 착된 두 물체가 서로 붙는 방향으로의 속도를 가지지 못하도록
-            var OtherVelocity = Collision_.OtherMovingObject == null ? new SPoint() : Collision_.OtherMovingObject.Velocity;
-            if (Collision_.Normal.X > 0.0f)
-            {
-                if (Velocity.X < OtherVelocity.X)
-                    Velocity.X = OtherVelocity.X;
-            }
-            else if (Collision_.Normal.X < 0.0f)
-            {
-                if (Velocity.X > OtherVelocity.X)
-                    Velocity.X = OtherVelocity.X;
-            }
-            else if (Collision_.Normal.Y > 0.0f)
-            {
-                if (Velocity.Y < OtherVelocity.Y)
-                    Velocity.Y = OtherVelocity.Y;
-            }
-            else if (Collision_.Normal.Y < 0.0f)
-            {
-                if (Velocity.Y > OtherVelocity.Y)
-                    Velocity.Y = OtherVelocity.Y;
-            }
-
             if (fCollisionStay != null)
                 return fCollisionStay.Invoke(tick, Collision_);
             else
                 return false;
         }
-        public bool Triggered(CCollider2D Collider_, CCollider2D OtherCollider_, CMovingObject2D OtherMovingObject_)
+        public override bool Triggered(Int64 tick, CCollider2D Collider_, CCollider2D OtherCollider_, CMovingObject2D OtherMovingObject_)
         {
             var Key = new SContactPoint2D(Collider_, OtherCollider_);
             if (!_ContactPoint2Ds.ContainsKey(Key))
@@ -113,17 +92,17 @@ namespace rso.physics
                 _ContactPoint2Ds.Add(Key, OtherMovingObject_);
 
                 if (fTriggerEnter != null)
-                    return fTriggerEnter.Invoke(OtherCollider_);
+                    return fTriggerEnter.Invoke(tick, OtherCollider_);
                 else
                     return false;
             }
 
             if (fTriggerStay != null)
-                return fTriggerStay.Invoke(OtherCollider_);
+                return fTriggerStay.Invoke(tick, OtherCollider_);
             else
                 return false;
         }
-        public void NotOverlapped(Int64 tick, CCollider2D Collider_, CCollider2D OtherCollider_)
+        public override void NotOverlapped(Int64 tick, CCollider2D Collider_, CCollider2D OtherCollider_)
         {
             var Key = new SContactPoint2D(Collider_, OtherCollider_);
             if (_ContactPoint2Ds.ContainsKey(Key))
@@ -133,12 +112,12 @@ namespace rso.physics
                 _ContactPoint2Ds.Remove(Key);
 
                 if (Collider_.IsTrigger || OtherCollider_.IsTrigger)
-                    fTriggerExit?.Invoke(OtherCollider_);
+                    fTriggerExit?.Invoke(tick, OtherCollider_);
                 else
                     fCollisionExit?.Invoke(tick, new SCollision2D(new SPoint(), new SPoint(), Collider_, OtherCollider_, movingObject));
             }
         }
-        public void NotOverlapped(Int64 tick, CCollider2D OtherCollider_)
+        public override void NotOverlapped(Int64 tick, CCollider2D OtherCollider_)
         {
             foreach (var k in _ContactPoint2Ds.Keys.ToArray())
             {
@@ -150,7 +129,7 @@ namespace rso.physics
                 _ContactPoint2Ds.Remove(k);
 
                 if (k.Collider.IsTrigger || OtherCollider_.IsTrigger)
-                    fTriggerExit?.Invoke(OtherCollider_);
+                    fTriggerExit?.Invoke(tick, OtherCollider_);
                 else
                     fCollisionExit?.Invoke(tick, new SCollision2D(new SPoint(), new SPoint(), k.Collider, OtherCollider_, movingObject));
             }

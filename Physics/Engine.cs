@@ -35,6 +35,8 @@ namespace rso.physics
                 foreach (var i in MovingObjects)
                     i.fFixedUpdate?.Invoke(Tick);
 
+                // 외부에서 Velocity를 변경한 경우 먼저 반영하기 위해 충돌 처리 전에 플레이어의 fixedUpdate 처리
+                // 그렇지 않으면 비탄성 충돌 하여 속도가 조정되어버림
                 foreach (var p in Players)
                     p.fFixedUpdate?.Invoke(Tick);
 

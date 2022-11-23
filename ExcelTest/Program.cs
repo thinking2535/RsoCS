@@ -56,18 +56,19 @@ namespace ConsoleApplicationCS
             DeleteMenu(GetSystemMenu(GetConsoleWindow(), false), SC_CLOSE, MF_BYCOMMAND);
 
             var Enums = new List<Enum>();
-            Enums.Add(default(EEnumType));
 
             using (var MetaFile = new CExcel(Enums, "bin", 0))
             {
                 MetaFile.Open("test.xlsx");
-                MetaFile.Export<STest2>("test", "Export", true);
+                MetaFile.Export<STest>("test", "Export", true);
                 //MetaFile.ExportEnum("test", "EnumType", "EnumCol", "EnumFile.cs", "public enum ETest : sbyte\n{{\n{0}\n}}\n");
             }
 
             var stm = new CStream("Export/test.bin");
-            var test = new List<STest2>();
+            var test = new List<STest>();
             stm.Pop(ref test);
+
+            Console.WriteLine(test[0].statuses[0]);
         }
     }
 }

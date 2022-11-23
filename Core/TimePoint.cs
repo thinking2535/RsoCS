@@ -6,135 +6,103 @@ namespace rso
     {
         public struct TimePoint : IComparable<TimePoint>
         {
-            public Int64 Ticks;
+            public static DateTime baseDateTime
+            {
+                get => new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            }
+            public static TimePoint now => new TimePoint(DateTime.UtcNow);
 
-            public TimePoint(Int64 Ticks_)
+            public static TimePoint fromTicks(Int64 ticks)
             {
-                Ticks = Ticks_;
+                return new TimePoint(ticks);
             }
-            public TimePoint(DateTime DateTime_)
+            public static TimePoint fromDateTime(DateTime dateTime)
             {
-                Ticks = DateTime_.ToTimePointTicks();
+                return new TimePoint(dateTime);
             }
-            public TimePoint(string Time_, DateTimeKind DateTimeKind_ = DateTimeKind.Utc) :
-                this(DateTime.SpecifyKind(Convert.ToDateTime(Time_), DateTimeKind_))
+            public static bool operator ==(TimePoint self, TimePoint other)
+            {
+                return (self.ticks == other.ticks);
+            }
+            public static bool operator !=(TimePoint self, TimePoint other)
+            {
+                return (self.ticks != other.ticks);
+            }
+            public static bool operator <(TimePoint self, TimePoint other)
+            {
+                return (self.ticks < other.ticks);
+            }
+            public static bool operator >(TimePoint self, TimePoint other)
+            {
+                return (self.ticks > other.ticks);
+            }
+            public static bool operator <=(TimePoint self, TimePoint other)
+            {
+                return (self.ticks <= other.ticks);
+            }
+            public static bool operator >=(TimePoint self, TimePoint other)
+            {
+                return (self.ticks >= other.ticks);
+            }
+
+            public static TimePoint operator +(TimePoint self, TimeSpan other)
+            {
+                return new TimePoint(self.ticks + other.Ticks);
+            }
+            public static TimePoint operator -(TimePoint self, TimeSpan other)
+            {
+                return new TimePoint(self.ticks - other.Ticks);
+            }
+            public static TimePoint operator +(TimePoint self, Duration other)
+            {
+                return new TimePoint(self.ticks + other.ticks);
+            }
+            public static TimePoint operator -(TimePoint self, Duration other)
+            {
+                return new TimePoint(self.ticks - other.ticks);
+            }
+
+            public static Duration operator -(TimePoint self, TimePoint other)
+            {
+                return new Duration(self.ticks - other.ticks);
+            }
+
+            public Int64 ticks;
+
+            public TimePoint(Int64 ticks)
+            {
+                this.ticks = ticks;
+            }
+            public TimePoint(DateTime dateTime)
+            {
+                ticks = (dateTime.ToUniversalTime() - baseDateTime).Ticks;
+            }
+            public TimePoint(string timeString, DateTimeKind dateTimeKind = DateTimeKind.Utc) :
+                this(DateTime.SpecifyKind(Convert.ToDateTime(timeString), dateTimeKind))
             {
             }
-            public DateTime ToDateTime()
+            public DateTime toDateTime()
             {
-                return (Extension.BaseDateTime() + new TimeSpan(Ticks)).ToLocalTime();
+                return (baseDateTime + new TimeSpan(ticks)).ToLocalTime();
             }
-            public static TimePoint Now
+            public Int32 CompareTo(TimePoint other)
             {
-                get
-                {
-                    return new TimePoint(DateTime.UtcNow);
-                }
-            }
-            public Int32 CompareTo(TimePoint value)
-            {
-                if (Ticks > value.Ticks) return 1;
-                else if (Ticks < value.Ticks) return -1;
+                if (ticks > other.ticks) return 1;
+                else if (ticks < other.ticks) return -1;
                 else return 0;
             }
             public override string ToString()
             {
-                return ToDateTime().ToString();
+                return toDateTime().ToString();
             }
             public override Int32 GetHashCode()
             {
-                return (Int32)Ticks;
+                return (Int32)ticks;
             }
-            public override bool Equals(object Obj_)
+            public override bool Equals(object obj)
             {
-                var p = (TimePoint)Obj_;
+                var p = (TimePoint)obj;
                 return (this == p);
-            }
-            public static bool operator ==(TimePoint lhs_, TimePoint rhs_)
-            {
-                return (lhs_.Ticks == rhs_.Ticks);
-            }
-            public static bool operator !=(TimePoint lhs_, TimePoint rhs_)
-            {
-                return (lhs_.Ticks != rhs_.Ticks);
-            }
-            public static bool operator <(TimePoint lhs_, TimePoint rhs_)
-            {
-                return (lhs_.Ticks < rhs_.Ticks);
-            }
-            public static bool operator >(TimePoint lhs_, TimePoint rhs_)
-            {
-                return (lhs_.Ticks > rhs_.Ticks);
-            }
-            public static bool operator <=(TimePoint lhs_, TimePoint rhs_)
-            {
-                return (lhs_.Ticks <= rhs_.Ticks);
-            }
-            public static bool operator >=(TimePoint lhs_, TimePoint rhs_)
-            {
-                return (lhs_.Ticks >= rhs_.Ticks);
-            }
-
-            public static TimePoint operator +(TimePoint lhs_, TimeSpan rhs_)
-            {
-                return new TimePoint(lhs_.Ticks + rhs_.Ticks);
-            }
-            public static TimePoint operator -(TimePoint lhs_, TimeSpan rhs_)
-            {
-                return new TimePoint(lhs_.Ticks - rhs_.Ticks);
-            }
-            public static TimePoint operator +(TimePoint lhs_, Microseconds rhs_)
-            {
-                return new TimePoint(lhs_.Ticks + rhs_.ticks);
-            }
-            public static TimePoint operator -(TimePoint lhs_, Microseconds rhs_)
-            {
-                return new TimePoint(lhs_.Ticks - rhs_.ticks);
-            }
-            public static TimePoint operator +(TimePoint lhs_, Milliseconds rhs_)
-            {
-                return new TimePoint(lhs_.Ticks + rhs_.ticks);
-            }
-            public static TimePoint operator -(TimePoint lhs_, Milliseconds rhs_)
-            {
-                return new TimePoint(lhs_.Ticks - rhs_.ticks);
-            }
-            public static TimePoint operator +(TimePoint lhs_, Seconds rhs_)
-            {
-                return new TimePoint(lhs_.Ticks + rhs_.ticks);
-            }
-            public static TimePoint operator -(TimePoint lhs_, Seconds rhs_)
-            {
-                return new TimePoint(lhs_.Ticks - rhs_.ticks);
-            }
-            public static TimePoint operator +(TimePoint lhs_, Minutes rhs_)
-            {
-                return new TimePoint(lhs_.Ticks + rhs_.ticks);
-            }
-            public static TimePoint operator -(TimePoint lhs_, Minutes rhs_)
-            {
-                return new TimePoint(lhs_.Ticks - rhs_.ticks);
-            }
-            public static TimePoint operator +(TimePoint lhs_, Hours rhs_)
-            {
-                return new TimePoint(lhs_.Ticks + rhs_.ticks);
-            }
-            public static TimePoint operator -(TimePoint lhs_, Hours rhs_)
-            {
-                return new TimePoint(lhs_.Ticks - rhs_.ticks);
-            }
-
-            public static TimeSpan operator -(TimePoint lhs_, TimePoint rhs_)
-            {
-                return TimeSpan.FromTicks(lhs_.Ticks - rhs_.Ticks);
-            }
-            public static TimePoint FromTicks(Int64 Ticks_)
-            {
-                return new TimePoint(Ticks_);
-            }
-            public static TimePoint FromDateTime(DateTime DateTime_)
-            {
-                return new TimePoint(DateTime_);
             }
         }
     }

@@ -7,68 +7,68 @@ namespace rso
     {
         public static class Extension
 		{
-            public static bool IsInBoost(this STimeBoost Boost_, TimePoint Now_)
+            public static bool IsInBoost(this STimeBoost timeBoost, TimePoint now)
             {
-	            return (Now_ < Boost_.EndTime);
+	            return (now < timeBoost.EndTime);
             }
-			public static TimeSpan GetRealDuration(TimeSpan BoostedDuration_, double Speed_)
+			public static Duration GetRealDuration(Duration boostedDuration, double speed)
 			{
-				return TimeSpan.FromTicks((Int64)(BoostedDuration_.Ticks / Speed_));
+				return new Duration((Int64)(boostedDuration.ticks / speed));
 			}
-			public static TimeSpan GetBoostedDuration(this STimeBoost Boost_, TimePoint Now_)
+			public static Duration GetBoostedDuration(this STimeBoost timeBoost, TimePoint now)
 			{
-                return TimeSpan.FromTicks((Int64)((Boost_.EndTime - Now_).Ticks * Boost_.Speed));
+                return new Duration((Int64)((timeBoost.EndTime - now).ticks * timeBoost.Speed));
 			}
-            public static TimeSpan GetBoostedDuration(this STimeBoost Boost_, TimePoint BeginTime_, TimePoint EndTime_)
+            public static Duration GetBoostedDuration(this STimeBoost timeBoost, TimePoint beginTime, TimePoint endTime)
             {
-                if (EndTime_ <= BeginTime_)
-                    return TimeSpan.Zero;
+                if (endTime <= beginTime)
+                    return Duration.zero;
 
-                if (Boost_.EndTime < BeginTime_)
+                if (timeBoost.EndTime < beginTime)
                 {
-                    return EndTime_ - BeginTime_;
+                    return endTime - beginTime;
                 }
                 else
                 {
-                    if (Boost_.EndTime < EndTime_)
-                        return TimeSpan.FromTicks((Int64)((Boost_.EndTime - BeginTime_).Ticks * Boost_.Speed) + (EndTime_ - Boost_.EndTime).Ticks);
+                    if (timeBoost.EndTime < endTime)
+                        return new Duration((Int64)((timeBoost.EndTime - beginTime).ticks * timeBoost.Speed) + (endTime - timeBoost.EndTime).ticks);
                     else
-                        return TimeSpan.FromTicks((Int64)((EndTime_ - BeginTime_).Ticks * Boost_.Speed));
+                        return new Duration((Int64)((endTime - beginTime).ticks * timeBoost.Speed));
                 }
             }
-			public static TimePoint GetBoostedEndTime(this STimeBoost Boost_, TimePoint BeginTime_, TimeSpan BoostedDuration_)
+			public static TimePoint GetBoostedEndTime(this STimeBoost timeBoost, TimePoint beginTime, Duration boostedDuration)
 			{
-				if (BoostedDuration_.Ticks <= 0)
-					return BeginTime_;
+				if (boostedDuration.ticks <= 0)
+					return beginTime;
 
-				if (Boost_.EndTime < BeginTime_)
+				if (timeBoost.EndTime < beginTime)
 				{
-					return BeginTime_ + BoostedDuration_;
+					return beginTime + boostedDuration;
 				}
 				else
 				{
-					var BoostDuration = TimeSpan.FromTicks((Int64)((Boost_.EndTime - BeginTime_).Ticks * Boost_.Speed));
-					if (BoostedDuration_ <= BoostDuration)
-						return BeginTime_ + TimeSpan.FromTicks((Int64)(BoostedDuration_.Ticks / Boost_.Speed));
+					var BoostDuration = new Duration((Int64)((timeBoost.EndTime - beginTime).ticks * timeBoost.Speed));
+					if (boostedDuration <= BoostDuration)
+						return beginTime + new Duration((Int64)(boostedDuration.ticks / timeBoost.Speed));
 					else
-						return Boost_.EndTime + (BoostedDuration_ - BoostDuration);
+						return timeBoost.EndTime + (boostedDuration - BoostDuration);
 				}
 			}
-		    public static bool ChangeBeginTime(this STimeBoost Boost_, TimePoint Now_, double Speed_, ref TimePoint BeginTime_)
+		    public static bool ChangeBeginTime(this STimeBoost timeBoost, TimePoint now, double speed, ref TimePoint beginTime)
 		    {
-			    if (Boost_.IsInBoost(Now_))
+			    if (timeBoost.IsInBoost(now))
 				    return false;
 
-			    if (BeginTime_ <= Boost_.EndTime)
-				    BeginTime_ = Now_ - (Boost_.EndTime - BeginTime_) - GetRealDuration(Now_ - Boost_.EndTime, Speed_);
+			    if (beginTime <= timeBoost.EndTime)
+				    beginTime = now - (timeBoost.EndTime - beginTime) - GetRealDuration(now - timeBoost.EndTime, speed);
 			    else
-				    BeginTime_ = Now_ - GetRealDuration(Now_ - BeginTime_, Speed_);
+				    beginTime = now - GetRealDuration(now - beginTime, speed);
 
 			    return true;
 		    }
-            public static string ToString(STimeBoost Boost_)
+            public static string ToString(STimeBoost timeBoost)
             {
-                return " EndTime:" + Boost_.EndTime.ToString() + " Speed:" + Boost_.Speed;
+                return " EndTime:" + timeBoost.EndTime.ToString() + " Speed:" + timeBoost.Speed;
             }
         }
     }
